@@ -163,11 +163,11 @@ class MainCircleState extends State<MainCircle> {
                           ),
                         ),
                         ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             CupertinoIcons.home,
                             color: Colors.white,
                           ),
-                          title: Text(
+                          title: const Text(
                             "Home",
                             textScaleFactor: 1.2,
                             style: TextStyle(
@@ -175,15 +175,15 @@ class MainCircleState extends State<MainCircle> {
                             ),
                           ),
                           onTap: () {
-                            Get.off(MainCircle());
+                            Get.off(const MainCircle());
                           },
                         ),
                         ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             CupertinoIcons.search_circle_fill,
                             color: Colors.white,
                           ),
-                          title: Text(
+                          title: const Text(
                             "Search Circles",
                             textScaleFactor: 1.2,
                             style: TextStyle(
@@ -192,7 +192,7 @@ class MainCircleState extends State<MainCircle> {
                           ),
                           onTap: () {
                             Get.back();
-                            Get.to(SearchChatScreen());
+                            Get.to(const SearchChatScreen());
                           },
                         ),
                         ListTile(
@@ -209,11 +209,11 @@ class MainCircleState extends State<MainCircle> {
                           ),
                           onTap: () {
                             Get.back();
-                            Get.to(SearchUsersScreen());
+                            Get.to(const SearchUsersScreen());
                           },
                         ),
                         ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             CupertinoIcons.add,
                             color: Colors.white,
                           ),
@@ -230,11 +230,11 @@ class MainCircleState extends State<MainCircle> {
                           },
                         ),
                         ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             CupertinoIcons.person_2,
                             color: Colors.white,
                           ),
-                          title: Text(
+                          title: const Text(
                             "Select Users",
                             textScaleFactor: 1.2,
                             style: TextStyle(
@@ -246,66 +246,66 @@ class MainCircleState extends State<MainCircle> {
                             Get.to(UsersPage());
                           },
                         ),
-                        ListTile(
-                          leading: Icon(
-                            CupertinoIcons.checkmark_circle,
-                            color: Colors.white,
-                          ),
-                          title: Text(
-                            "Join A Circle",
-                            textScaleFactor: 1.2,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () async {
-                            Get.back();
-                            await joinCircleById();
-                            // Get.off(MainCircle());
-                          },
-                        ),
-                        ListTile(
-                          leading: Icon(
-                            CupertinoIcons.arrow_up_down_circle_fill,
-                            color: Colors.white,
-                          ),
-                          title: Text(
-                            "View All Circles",
-                            textScaleFactor: 1.2,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () async {
-                            Get.back();
-                            Get.to(AllCirclesScreen());
-                            // await joinCircleById();
-                            // Get.off(MainCircle());
-                          },
-                        ),
-                        ListTile(
-                          leading: Icon(
-                            CupertinoIcons.arrow_down_circle,
-                            color: Colors.white,
-                          ),
-                          title: Text(
-                            "Circle Invites",
-                            textScaleFactor: 1.2,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () async {
-                            Get.back();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                  const ViewRequestsPage()),
-                            );
-
-                          },
-                        ),
+                        // ListTile(
+                        //   leading: Icon(
+                        //     CupertinoIcons.checkmark_circle,
+                        //     color: Colors.white,
+                        //   ),
+                        //   title: Text(
+                        //     "Join A Circle",
+                        //     textScaleFactor: 1.2,
+                        //     style: TextStyle(
+                        //       color: Colors.white,
+                        //     ),
+                        //   ),
+                        //   onTap: () async {
+                        //     Get.back();
+                        //     await joinCircleById();
+                        //     // Get.off(MainCircle());
+                        //   },
+                        // ),
+                        // ListTile(
+                        //   leading: Icon(
+                        //     CupertinoIcons.arrow_up_down_circle_fill,
+                        //     color: Colors.white,
+                        //   ),
+                        //   title: Text(
+                        //     "View All Circles",
+                        //     textScaleFactor: 1.2,
+                        //     style: TextStyle(
+                        //       color: Colors.white,
+                        //     ),
+                        //   ),
+                        //   onTap: () async {
+                        //     Get.back();
+                        //     Get.to(AllCirclesScreen());
+                        //     // await joinCircleById();
+                        //     // Get.off(MainCircle());
+                        //   },
+                        // ),
+                        // ListTile(
+                        //   leading: Icon(
+                        //     CupertinoIcons.arrow_down_circle,
+                        //     color: Colors.white,
+                        //   ),
+                        //   title: Text(
+                        //     "Circle Invites",
+                        //     textScaleFactor: 1.2,
+                        //     style: TextStyle(
+                        //       color: Colors.white,
+                        //     ),
+                        //   ),
+                        //   onTap: () async {
+                        //     Get.back();
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //           builder: (context) =>
+                        //           const ViewRequestsPage()),
+                        //     );
+                        //
+                        //   },
+                        // ),
                         ListTile(
                           leading: Icon(
                             Icons.logout,
@@ -346,25 +346,25 @@ class MainCircleState extends State<MainCircle> {
             ),
             bottom: _bottom(),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: Obx(() => (!logOutController.loading.value)
-                    ? IconButton(
-                        // tooltip: 'Refresh',
-                        icon: const Icon(
-                          Icons.logout_outlined,
-                          size: 25.0,
-                        ),
-                        onPressed: () async {
-                          // print('Hiragino Kaku Gothic ProN');
-                          await logout();
-                        })
-                    : SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: CircularProgressIndicator(),
-                      )),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.only(right: 10.0),
+              //   child: Obx(() => (!logOutController.loading.value)
+              //       ? IconButton(
+              //           // tooltip: 'Refresh',
+              //           icon: const Icon(
+              //             Icons.logout_outlined,
+              //             size: 25.0,
+              //           ),
+              //           onPressed: () async {
+              //             // print('Hiragino Kaku Gothic ProN');
+              //             await logout();
+              //           })
+              //       : SizedBox(
+              //           height: 25,
+              //           width: 25,
+              //           child: CircularProgressIndicator(),
+              //         )),
+              // ),
               InkWell(
                 onTap: () {
                   // print("Hiragino Kaku Gothic ProN");
@@ -393,7 +393,7 @@ class MainCircleState extends State<MainCircle> {
               ),
             ],
           ),
-          body: (_currentIndex == 0)
+          body: (_currentIndex == 1)
               ? const RoomsPage(
                   secondVersion: true,
                 )
@@ -409,6 +409,19 @@ class MainCircleState extends State<MainCircle> {
                               child: const Text("View My Circles"),
                               onPressed: () {
                                 Get.to(RoomsPage());
+                                // viewMyCircles(context);
+                              }),
+                          ElevatedButton(
+                              child: const Text("View All Circles"),
+                              onPressed: () {
+                                Get.to(AllCirclesScreen());
+                                // viewMyCircles(context);
+                              }),
+                          ElevatedButton(
+                              child: const Text("Join a Circle"),
+                              onPressed: () async{
+                                await joinCircleById();
+                                // Get.to(AllCirclesScreen());
                                 // viewMyCircles(context);
                               }),
                           ElevatedButton(
@@ -434,11 +447,77 @@ class MainCircleState extends State<MainCircle> {
                                 //       const ViewRequestsPage()),
                                 // );
                               }),
-                          // ElevatedButton(
-                          //     child: const Text("Create Dynamic Link"),
-                          //     onPressed: () async {
-                          //       await DynamicLinkHelper.createDynamicLink("0934");
-                          //     })
+                          StreamBuilder(
+                            stream: FirebaseFirestore.instance.collection("rooms").snapshots(),
+                            builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot) {
+
+                              if(snapshot.connectionState == ConnectionState.waiting || (!(snapshot.hasData))){
+                                return ElevatedButton(
+                                    child: const Text(" Circle Invites "),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const ViewRequestsPage()),
+                                      );
+                                    });
+                              }
+
+                              int count = 0;
+
+                              QuerySnapshot<Map<String,dynamic>> allRoomsCollection = snapshot.data!;
+
+                              for (int i=0; i<allRoomsCollection.docs.length; i++){
+
+
+                                final Map<String,dynamic> map  = allRoomsCollection.docs[i].data();
+
+                                if(map["requests"] == null){
+                                  continue;
+                                }
+
+                                final List requests = map["requests"] ?? [];
+
+
+                                if(requests.contains(FirebaseAuth.instance.currentUser!.uid)){
+                                  // print("trying");
+                                  // print(map);
+                                  count = count +1;
+                              }
+                              }
+
+
+                              return ElevatedButton(
+                                  child: Row(
+                                    children: [
+                                      const Text("Circle Invites  "),
+                                      count != 0 ?Text("($count)", style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                          const ViewRequestsPage()),
+                                    );
+                                  });
+                            }
+                          ),
+                          ElevatedButton(
+
+                            ///VIEW CIRCLE INVITES REPLACEMENT
+                              child: const Text("          Text         "),
+                              onPressed: () {
+                                Get.to(UsersPage());
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) =>
+                                //       const ViewRequestsPage()),
+                                // );
+                              }),
                         ],
                       ),
                       // const NavigationBarItem(label: "messaging",icon: CupertinoIcons.bubble_left_bubble_right,),
@@ -447,49 +526,52 @@ class MainCircleState extends State<MainCircle> {
                     ],
                   ),
                 ),
-          bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: Colors.blue[600],
-            onTap: (index) {
-              print("hi");
-              // setState(() {
-              //   this.index = index;
-              // });
 
-              if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RoomsPage()),
-                );
-                // _scaffoldKey1.currentState!.openDrawer();
-              }
+          ///BOTTOM NAVIGATION BAR
 
-              // else if (index == 2) {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => RoomsPage()),
-              //   );
-              // }
-            },
-            items: const [
-              BottomNavigationBarItem(
-                label: 'Home',
-                icon: Icon(CupertinoIcons.home),
-              ),
-              // BottomNavigationBarItem(
-              //   label: 'Profile',
-              //   icon: Icon(
-              //     Icons.group,
-              //   ),
-              // ),
-              BottomNavigationBarItem(
-                label: 'Chat',
-                icon: Icon(
-                  CupertinoIcons.chat_bubble,
-                ),
-              ),
-            ],
-          )),
-    );
+          // bottomNavigationBar: BottomNavigationBar(
+          //   backgroundColor: Colors.blue[600],
+          //   onTap: (index) {
+          //     print("hi");
+          //     // setState(() {
+          //     //   this.index = index;
+          //     // });
+          //
+          //     if (index == 1) {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(builder: (context) => RoomsPage()),
+          //       );
+          //       // _scaffoldKey1.currentState!.openDrawer();
+          //     }
+          //
+          //     // else if (index == 2) {
+          //     //   Navigator.push(
+          //     //     context,
+          //     //     MaterialPageRoute(builder: (context) => RoomsPage()),
+          //     //   );
+          //     // }
+          //   },
+          //   items: const [
+          //     BottomNavigationBarItem(
+          //       label: 'Home',
+          //       icon: Icon(CupertinoIcons.home),
+          //     ),
+          //     // BottomNavigationBarItem(
+          //     //   label: 'Profile',
+          //     //   icon: Icon(
+          //     //     Icons.group,
+          //     //   ),
+          //     // ),
+          //     BottomNavigationBarItem(
+          //       label: 'Chat',
+          //       icon: Icon(
+          //         CupertinoIcons.chat_bubble,
+          //       ),
+          //     ),
+          //   ],
+          // )),
+    ));
   }
 
   // _createDynamicLink() async {
@@ -715,7 +797,7 @@ class MainCircleState extends State<MainCircle> {
       tabs: const [
         Tab(
           child: Text(
-            'Chats',
+            'Home Page',
             style: TextStyle(
               fontSize: 20.0,
               fontFamily: 'Lora',
@@ -726,7 +808,7 @@ class MainCircleState extends State<MainCircle> {
         ),
         Tab(
           child: Text(
-            'Home Page',
+            'Chats',
             style: TextStyle(
               fontSize: 20.0,
               fontFamily: 'Lora',
@@ -738,6 +820,7 @@ class MainCircleState extends State<MainCircle> {
       ],
     );
   }
+
 }
 
 class NavigationBarItem extends StatelessWidget {
