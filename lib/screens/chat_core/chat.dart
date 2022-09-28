@@ -420,7 +420,17 @@ class _ChatPageState extends State<ChatPage> {
         .doc(widget.room.id)
         .update({"lastMsg": message.text});
     List registrationIds = [];
+
+    Map metadata = widget.room.metadata ?? {};
+    List mutedBy = metadata['mutedBy'] ?? [];
+    for (var element in mutedBy) {element=element.toString();}
+
     for (var user in widget.room.users) {
+
+      if (mutedBy.contains(user.id)){
+        continue;
+      }
+
       Map map = user.metadata ?? {};
       List fcmTokens = map['fcmTokens'] ?? [];
       registrationIds.addAll(fcmTokens);

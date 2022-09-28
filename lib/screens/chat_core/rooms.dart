@@ -2,6 +2,7 @@ import 'package:circle/phone_login/phone_login.dart';
 import 'package:circle/screens/users_for_group.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -132,13 +133,32 @@ class _RoomsPageState extends State<RoomsPage> {
                   );
                 }
 
+                try{
+                  snapshot.data!
+                      .sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+                }
+                catch(e){
+                  for (var element in snapshot.data!) {print(element.updatedAt);}
+                }
+
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
-                    final room = snapshot.data![index];
+                    final types.Room room = snapshot.data![index];
+                    bool muted = false;
+
+                    Map metadata = room.metadata ?? {};
+                    List mutedIds = metadata['mutedBy'] ?? [];
+                    for (var element in mutedIds) {element=element.toString();}
+
+                    ///If already muted
+                    if(mutedIds.contains(FirebaseAuth.instance.currentUser!.uid)){
+                      muted = true;
+                    }
+
 
                     if((room.metadata == null) || (room.metadata!["isChildCircle"] == null) || (room.metadata!["isChildCircle"] == false) ){
-                      return GestureDetector(
+                      return InkWell(
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -149,7 +169,28 @@ class _RoomsPageState extends State<RoomsPage> {
                             ),
                           );
                         },
+                        onLongPress: () async{
+
+                          ///If already muted
+                          if(muted){
+                            mutedIds.removeWhere((element) => element==FirebaseAuth.instance.currentUser!.uid);
+                            muted = false;
+                            Get.snackbar("Success", "Circle Unmuted", backgroundColor: Colors.white);
+                          }
+                          else {
+                            mutedIds.add(FirebaseAuth.instance.currentUser!.uid);
+                            muted = true;
+                            Get.snackbar("Success", "Circle Muted", backgroundColor: Colors.white);
+                          }
+
+                          metadata['mutedBy'] = mutedIds;
+                          await FirebaseFirestore.instance.collection('rooms').doc(room.id).update({
+                            'metadata' : metadata
+                          });
+
+                        },
                         child: Container(
+                          width: double.infinity,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,
@@ -161,53 +202,76 @@ class _RoomsPageState extends State<RoomsPage> {
                               Row(
                                 children: [
                                   _buildAvatar(room),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 10,),
-                                      Text(
-                                        room.metadata?['status'] ?? 'undefined status',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal,
-                                          fontStyle: FontStyle.italic
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 10,),
+                                        room.type == types.RoomType.group ?
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              room.metadata?['status'] ?? ' status',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.normal,
+                                                fontStyle: FontStyle.italic
+                                              ),
+                                            ),
+                                            Text(
+                                              room.metadata?['privacy'] ?? 'undefined',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontStyle: FontStyle.italic
+                                              ),
+                                            )
+                                          ],
+                                        ) : const SizedBox(),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          room.name ?? 'no name',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        room.name ?? 'no name',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      FutureBuilder(
-                                        future: fetchLastMsg(room),
-                                        builder: (BuildContext context,
-                                            AsyncSnapshot snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const Text(
-                                              "Loading",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            );
-                                          }
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          children: [
+                                            FutureBuilder(
+                                              future: fetchLastMsg(room),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const Text(
+                                                    "Loading",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  );
+                                                }
 
-                                          return Text(
-                                            snapshot.data!,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          );
-                                        },
-                                      )
-                                    ],
+                                                return Text(
+                                                  snapshot.data!,
+                                                  style:
+                                                      TextStyle(color: Colors.white),
+                                                );
+                                              },
+                                            ),
+                                            Spacer(),
+                                            muted ? Icon(CupertinoIcons.bell_slash_fill, color: Colors.white,) : SizedBox()
+                                          ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

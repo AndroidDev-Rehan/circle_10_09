@@ -16,7 +16,7 @@ class UsersPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          title: const Text('Users'),
+          title: const Text('All Contacts'),
           actions: [
             InkWell(
                 child: Padding(

@@ -3,6 +3,8 @@ import 'package:circle/screens/add_event_screen.dart';
 import 'package:circle/screens/calendar_list_events.dart';
 import 'package:circle/screens/chat_core/add_group_members.dart';
 import 'package:circle/screens/chat_core/view_nested_rooms.dart';
+import 'package:circle/screens/chat_core/view_requests_page.dart';
+import 'package:circle/screens/view_user_requests.dart';
 import 'package:circle/utils/dynamiclink_helper.dart';
 import 'package:circle/widgets/single_user_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,15 +33,23 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late String circleLink;
   final GroupInfoController groupInfoController = GroupInfoController();
   TextEditingController groupNameController = TextEditingController();
+  bool isManager = false;
 
   @override
   initState() {
     groupNameController.text = widget.groupRoom.name!;
+
+    List managers = (widget.groupRoom.metadata)?["managers"] ?? [];
+
+    isManager = managers.contains(FirebaseAuth.instance.currentUser!.uid);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool tried = false;
+
     // print(widget.groupRoom.metadata);
     return FutureBuilder(
         future: _generateLink(),
@@ -64,7 +74,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               ),
               body: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
+                child: ListView(
                   children: [
                     ClipRRect(
                         borderRadius: BorderRadius.circular(50),
@@ -133,8 +143,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                               backgroundColor: Colors.white);
                         },
                         child: const Text("Copy Invite Link")),
-                    const SizedBox(
-                      height: 20,
+
+                    MuteButton(groupRoom: widget.groupRoom),
+                    SizedBox(
+                      height: 10,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -187,6 +199,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                 TextEditingController idController =
                                     TextEditingController();
                                 Map? userMap;
+                                tried = false;
                                 await showDialog(
                                     context: context,
                                     builder: (_) => AlertDialog(
@@ -210,6 +223,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                 child: Text("Cancel")),
                                             ElevatedButton(
                                                 onPressed: () async {
+                                                  tried = true;
                                                   DocumentSnapshot<Map>
                                                       documentSnapshot =
                                                       await FirebaseFirestore
@@ -290,7 +304,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                   child: Text("Add"))
                                             ],
                                           ));
-                                } else {
+                                } else if (tried) {
                                   Get.snackbar("Sorry", "No user found",
                                       backgroundColor: Colors.white);
                                 }
@@ -315,6 +329,22 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     const SizedBox(
                       height: 5,
                     ),
+                    isManager
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Get.to(ViewUserRequestsPage(
+                                        groupRoom: widget.groupRoom));
+                                  },
+                                  child: const Text("View Circle Requests")),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          )
+                        : const SizedBox(),
                     Row(
                       children: [
                         Expanded(
@@ -384,68 +414,76 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     // ),
 
                     // Text(groupRoom.name!,style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                    Expanded(
-                        child: FutureBuilder(
-                            future: allowedToSeeUsers(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              if (snapshot.data == false) {
-                                return SizedBox();
-                              }
-                              return StreamBuilder(
-                                  stream: FirebaseChatCore.instance
-                                      .room(widget.groupRoom.id),
-                                  builder: (context,
-                                      AsyncSnapshot<types.Room> snapshot) {
-                                    if (!snapshot.hasData) {
-                                      return SizedBox(
-                                        height: 40,
-                                        child: Center(
-                                            child: Text("No Users to show")),
+                    FutureBuilder(
+                        future: allowedToSeeUsers(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.data == false) {
+                            return SizedBox();
+                          }
+                          return StreamBuilder(
+                              stream: FirebaseChatCore.instance
+                                  .room(widget.groupRoom.id),
+                              builder: (context,
+                                  AsyncSnapshot<types.Room> snapshot) {
+                                if (!snapshot.hasData) {
+                                  return SizedBox(
+                                    height: 40,
+                                    child:
+                                        Center(child: Text("No Users to show")),
+                                  );
+                                }
+
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return SizedBox(
+                                    height: 40,
+                                    child: Center(
+                                        child: Text("Loading Users to show")),
+                                  );
+                                }
+
+                                return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: snapshot.data!.users.length + 1,
+                                    itemBuilder: (context, index) {
+                                      if (index == 0) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 12.0),
+                                          child: Text(
+                                            "${snapshot.data!.users.length} Participants",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        );
+                                      }
+
+                                      types.User user =
+                                          snapshot.data!.users[index - 1];
+
+                                      List managers = (widget.groupRoom
+                                              .metadata)?["managers"] ??
+                                          [];
+                                      managers = managers
+                                          .map((e) => e.toString())
+                                          .toList();
+
+                                      return SingleUserTile(
+                                        user: user,
+                                        groupRoom: widget.groupRoom,
+                                        manager: managers.contains(user.id),
                                       );
-                                    }
-
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return SizedBox(
-                                        height: 40,
-                                        child: Center(
-                                            child:
-                                                Text("Loading Users to show")),
-                                      );
-                                    }
-
-                                    return ListView.builder(
-                                        itemCount:
-                                            snapshot.data!.users.length + 1,
-                                        itemBuilder: (context, index) {
-                                          if (index == 0) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  bottom: 12.0),
-                                              child: Text(
-                                                "${snapshot.data!.users.length} Participants",
-                                                style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            );
-                                          }
-
-                                          types.User user =
-                                              snapshot.data!.users[index - 1];
-                                          return SingleUserTile(
-                                              user: user,
-                                              groupRoom: widget.groupRoom);
-                                        });
-                                  });
-                            })),
+                                    });
+                              });
+                        }),
                   ],
                 ),
               ),
@@ -530,5 +568,90 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         .update({"name": groupNameController.text});
 
     groupInfoController.loading.value = false;
+  }
+}
+
+class MuteButton extends StatefulWidget {
+  final types.Room groupRoom;
+
+  const MuteButton({Key? key, required this.groupRoom}) : super(key: key);
+
+  @override
+  State<MuteButton> createState() => _MuteButtonState();
+}
+
+class _MuteButtonState extends State<MuteButton> {
+  bool muted = false;
+  List mutedIds = [];
+  Map metadata = {};
+  bool loading = false;
+
+  @override
+  void initState() {
+    metadata = widget.groupRoom.metadata ?? {};
+    mutedIds = metadata['mutedBy'] ?? [];
+    for (var element in mutedIds) {
+      element = element.toString();
+    }
+
+    ///If already muted
+    if (mutedIds.contains(FirebaseAuth.instance.currentUser!.uid)) {
+      muted = true;
+    }
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return loading
+        ? SizedBox(
+            height: 40,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                loading = true;
+              });
+
+              if (muted) {
+                mutedIds.removeWhere((element) =>
+                    element == FirebaseAuth.instance.currentUser!.uid);
+                muted = false;
+              } else {
+                mutedIds.add(FirebaseAuth.instance.currentUser!.uid);
+                muted = true;
+              }
+
+              metadata['mutedBy'] = mutedIds;
+              await FirebaseFirestore.instance
+                  .collection('rooms')
+                  .doc(widget.groupRoom.id)
+                  .update({'metadata': metadata});
+              setState(() {
+                loading = false;
+              });
+
+              if(muted){
+                Get.snackbar("Success", "Circle Muted",
+                    backgroundColor: Colors.white);
+
+              }
+              else{
+                Get.snackbar("Success", "Circle Unmuted",
+                    backgroundColor: Colors.white);
+
+              }
+
+            },
+            child: Text(muted ? "Unmute" : "Mute"),
+            style: ElevatedButton.styleFrom(
+              primary: muted ? Colors.red : Colors.green,
+            ),
+          );
   }
 }

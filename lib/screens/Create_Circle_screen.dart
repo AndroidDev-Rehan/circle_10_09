@@ -1,6 +1,7 @@
 
 import 'package:circle/utils/data_repo.dart';
 import 'package:circle/utils/db_operations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
@@ -62,6 +63,8 @@ class CreateCircleState extends State<CreateCirclePage>{
   bool loading = false;
 
   String? selectedStatus;
+  String? selectedPrivacy;
+
 
   final db = FirebaseFirestore.instance;
   final DataRepository repo = DataRepository();
@@ -114,80 +117,89 @@ class CreateCircleState extends State<CreateCirclePage>{
               Center(
                   child: Form(
                     key: _formKey,
-                    child: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 10),
-                          child: TextFormField(
-                            controller: textControllerName,
-                            decoration: const InputDecoration(
-                              labelText: "Name:",
-                              hintText: 'Name of Circle'
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 10),
+                            child: TextFormField(
+                              controller: textControllerName,
+                              decoration: const InputDecoration(
+                                labelText: "Name:",
+                                hintText: 'Name of Circle'
+                              ),
+                              validator: (String? value){
+                                if(value == null || value.trim().isEmpty){
+                                  return "Name of Circle is required";
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (String? value){
-                              if(value == null || value.trim().isEmpty){
-                                return "Name of Circle is required";
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 10),
+                            child: TextFormField(
+                              controller: textControllerDescription,
+                              decoration: const InputDecoration(
+                                labelText: "Description",
+                                hintText: " Description of Circle"
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 10),
+                            child: MyDropDownButton(dropdownValue: null, function: (String v) { selectedStatus = v;  }, hintText: 'Select Status', items: const ['temporary','permanent'],  ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 10),
+                            child: MyDropDownButton(dropdownValue: null, function: (String v) { selectedPrivacy = v;  }, hintText: 'Select Privacy', items: const ['private','public'],  ),
+                          ),
+
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(
+                          //       horizontal: 4.0, vertical: 10),
+                          //   child: TextFormField(
+                          //     controller: textControllerStatus,
+                          //     decoration: const InputDecoration(
+                          //       hintText: "Temporary or Permanent",
+                          //       labelText: "Status",
+                          //     ),
+                          //   ),
+                          // ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 10),
+                            child: TextFormField(
+                              controller: textControllerContact,
+                              decoration: const InputDecoration(
+                                labelText: "Contact",
+                                hintText: "Primary Contact Name"
+                              ),
+                            ),
+                          ),
+                        loading ? const SizedBox(
+                          height: 50,
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )  : ElevatedButton(
+                            onPressed: () async{
+                              if (!widget.childCircle){
+                                  await createCircle(context);
+                                }
+                              else {
+                                await createChildCircle(context);
                               }
-                              return null;
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 10),
-                          child: TextFormField(
-                            controller: textControllerDescription,
-                            decoration: const InputDecoration(
-                              labelText: "Description",
-                              hintText: " Description of Circle"
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 10),
-                          child: MyDropDownButton(dropdownValue: null, function: (String v) { selectedStatus = v;  }, hintText: 'Select Status', items: const ['temporary','permanent'],  ),
-                        ),
-                        // Padding(
-                        //   padding: const EdgeInsets.symmetric(
-                        //       horizontal: 4.0, vertical: 10),
-                        //   child: TextFormField(
-                        //     controller: textControllerStatus,
-                        //     decoration: const InputDecoration(
-                        //       hintText: "Temporary or Permanent",
-                        //       labelText: "Status",
-                        //     ),
-                        //   ),
-                        // ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 10),
-                          child: TextFormField(
-                            controller: textControllerContact,
-                            decoration: const InputDecoration(
-                              labelText: "Contact",
-                              hintText: "Primary Contact Name"
-                            ),
-                          ),
-                        ),
-                      loading ? const SizedBox(
-                        height: 50,
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      )  : ElevatedButton(
-                          onPressed: () async{
-                            if (!widget.childCircle){
-                                await createCircle(context);
-                              }
-                            else {
-                              await createChildCircle(context);
-                            }
 
 
-                            }, child: const Text("Submit"))
-                      ],
+                              }, child: const Text("Submit"))
+                        ],
+                      ),
                     ),
                   )
               )
@@ -219,7 +231,11 @@ class CreateCircleState extends State<CreateCirclePage>{
                     'fcmTokens': [
                       await DBOperations.getDeviceTokenToSendNotification()
                     ],
-                    'status': selectedStatus
+                    'status': selectedStatus,
+                    'privacy': selectedPrivacy,
+                    'managers': [
+                      FirebaseAuth.instance.currentUser!.uid
+                  ]
                   });
           print(groupRoom.id);
           Get.off(() => AddContactsScreen(
@@ -235,7 +251,10 @@ class CreateCircleState extends State<CreateCirclePage>{
           });
         }
       }
-      else{
+      else if (selectedPrivacy==null){
+        Get.snackbar("Denied", "Select Circle Privacy");
+      }
+    else{
         Get.snackbar("Denied", "Select Circle Status");
       }
     }

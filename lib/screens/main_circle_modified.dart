@@ -5,6 +5,7 @@ import 'package:circle/screens/chat_core/search_chat_screen.dart';
 import 'package:circle/screens/chat_core/search_users.dart';
 import 'package:circle/screens/chat_core/users.dart';
 import 'package:circle/screens/profile_screen.dart';
+import 'package:circle/screens/selectCircleToJoin.dart';
 import 'package:circle/screens/view_circle_page.dart';
 import 'package:circle/userinfo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -420,7 +421,7 @@ class MainCircleState extends State<MainCircle> {
                           ElevatedButton(
                               child: const Text("Join a Circle"),
                               onPressed: () async{
-                                await joinCircleById();
+                                Get.to(const SelectCircleToJoinScreen());
                                 // Get.to(AllCirclesScreen());
                                 // viewMyCircles(context);
                               }),
@@ -652,125 +653,125 @@ class MainCircleState extends State<MainCircle> {
     }));
   }
 
-  Future<void> joinCircleById() async {
-    {
-      TextEditingController idController = TextEditingController();
-      // Map? circleMap;
-      types.Room? room;
-      bool tried = false;
-      await showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                title: const Text('Enter Circle Id'),
-                content: TextFormField(
-                  controller: idController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Cancel")),
-                  ElevatedButton(
-                      onPressed: () async {
-                        if (idController.text.isEmpty) {
-                          Get.snackbar("Error", "Id cant be null");
-                          return;
-                        }
-
-                        tried = true;
-                        try {
-                          room = await FirebaseChatCore.instance
-                              .room(idController.text)
-                              .first;
-                        } catch (e) {
-                          room = null;
-                        }
-
-                        Navigator.pop(context);
-                      },
-                      child: Text("Confirm"))
-                ],
-              ));
-
-      bool alreadyJoined = false;
-
-      if (room != null) {
-        for (var element in room!.users) {
-          if (element.id == FirebaseAuth.instance.currentUser!.uid) {
-            alreadyJoined = true;
-            break;
-          }
-        }
-
-        await showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-                  title: const Text('Join Circle'),
-                  content: Container(
-                    margin: const EdgeInsets.only(right: 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          // backgroundColor: hasImage ? Colors.transparent : color,
-                          backgroundImage: NetworkImage(room!.imageUrl ??
-                              'https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE='),
-                          radius: 40,
-                          child: null,
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Text(room?.name ?? "room")
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("Cancel")),
-                    ElevatedButton(
-                        onPressed: alreadyJoined
-                            ? null
-                            : () async {
-                                try {
-                                  // await FirebaseFirestore.instance.collection("rooms")
-                                  //     .doc(widget.groupRoom.id)
-                                  //     .update({"users": userIds});
-                                  await FirebaseFirestore.instance
-                                      .collection("rooms")
-                                      .doc(idController.text)
-                                      .update({
-                                    "userIds": FieldValue.arrayUnion([
-                                      FirebaseAuth.instance.currentUser!.uid
-                                    ])
-                                  });
-                                  Navigator.pop(context);
-                                  Get.snackbar("Success",
-                                      "you are added to ${room?.name ?? 'circle'}",
-                                      backgroundColor: Colors.white);
-                                } catch (e) {
-                                  Get.snackbar("error", e.toString());
-                                  print(e);
-                                }
-                              },
-                        child: const Text("Join"))
-                  ],
-                ));
-      } else if (tried == true && room == null) {
-        Get.snackbar("Sorry", "No circle found", backgroundColor: Colors.white);
-      }
-    }
-  }
+  // Future<void> joinCircleById() async {
+  //   {
+  //     TextEditingController idController = TextEditingController();
+  //     // Map? circleMap;
+  //     types.Room? room;
+  //     bool tried = false;
+  //     await showDialog(
+  //         context: context,
+  //         builder: (_) => AlertDialog(
+  //               title: const Text('Enter Circle Id'),
+  //               content: TextFormField(
+  //                 controller: idController,
+  //                 decoration: const InputDecoration(
+  //                   border: OutlineInputBorder(),
+  //                   focusedBorder: OutlineInputBorder(),
+  //                   enabledBorder: OutlineInputBorder(),
+  //                   isDense: true,
+  //                 ),
+  //               ),
+  //               actions: [
+  //                 ElevatedButton(
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                     },
+  //                     child: const Text("Cancel")),
+  //                 ElevatedButton(
+  //                     onPressed: () async {
+  //                       if (idController.text.isEmpty) {
+  //                         Get.snackbar("Error", "Id cant be null");
+  //                         return;
+  //                       }
+  //
+  //                       tried = true;
+  //                       try {
+  //                         room = await FirebaseChatCore.instance
+  //                             .room(idController.text)
+  //                             .first;
+  //                       } catch (e) {
+  //                         room = null;
+  //                       }
+  //
+  //                       Navigator.pop(context);
+  //                     },
+  //                     child: Text("Confirm"))
+  //               ],
+  //             ));
+  //
+  //     bool alreadyJoined = false;
+  //
+  //     if (room != null) {
+  //       for (var element in room!.users) {
+  //         if (element.id == FirebaseAuth.instance.currentUser!.uid) {
+  //           alreadyJoined = true;
+  //           break;
+  //         }
+  //       }
+  //
+  //       await showDialog(
+  //           context: context,
+  //           builder: (_) => AlertDialog(
+  //                 title: const Text('Join Circle'),
+  //                 content: Container(
+  //                   margin: const EdgeInsets.only(right: 16),
+  //                   child: Column(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: [
+  //                       CircleAvatar(
+  //                         // backgroundColor: hasImage ? Colors.transparent : color,
+  //                         backgroundImage: NetworkImage(room!.imageUrl ??
+  //                             'https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE='),
+  //                         radius: 40,
+  //                         child: null,
+  //                       ),
+  //                       const SizedBox(
+  //                         height: 15,
+  //                       ),
+  //                       Text(room?.name ?? "room")
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 actions: [
+  //                   ElevatedButton(
+  //                       onPressed: () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                       child: Text("Cancel")),
+  //                   ElevatedButton(
+  //                       onPressed: alreadyJoined
+  //                           ? null
+  //                           : () async {
+  //                               try {
+  //                                 // await FirebaseFirestore.instance.collection("rooms")
+  //                                 //     .doc(widget.groupRoom.id)
+  //                                 //     .update({"users": userIds});
+  //                                 await FirebaseFirestore.instance
+  //                                     .collection("rooms")
+  //                                     .doc(idController.text)
+  //                                     .update({
+  //                                   "userIds": FieldValue.arrayUnion([
+  //                                     FirebaseAuth.instance.currentUser!.uid
+  //                                   ])
+  //                                 });
+  //                                 Navigator.pop(context);
+  //                                 Get.snackbar("Success",
+  //                                     "you are added to ${room?.name ?? 'circle'}",
+  //                                     backgroundColor: Colors.white);
+  //                               } catch (e) {
+  //                                 Get.snackbar("error", e.toString());
+  //                                 print(e);
+  //                               }
+  //                             },
+  //                       child: const Text("Join"))
+  //                 ],
+  //               ));
+  //     } else if (tried == true && room == null) {
+  //       Get.snackbar("Sorry", "No circle found", backgroundColor: Colors.white);
+  //     }
+  //   }
+  // }
 
   PreferredSizeWidget? _bottom() {
     return TabBar(
