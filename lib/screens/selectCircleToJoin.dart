@@ -130,7 +130,7 @@ class _SelectCircleToJoinScreenState extends State<SelectCircleToJoinScreen> {
     await showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Enter Circle Id'),
+          title: const Text('Confirmation'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

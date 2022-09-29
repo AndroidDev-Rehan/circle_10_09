@@ -35,6 +35,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   TextEditingController groupNameController = TextEditingController();
   bool isManager = false;
 
+  int reqCount = 0;
+
   @override
   initState() {
     groupNameController.text = widget.groupRoom.name!;
@@ -42,6 +44,10 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     List managers = (widget.groupRoom.metadata)?["managers"] ?? [];
 
     isManager = managers.contains(FirebaseAuth.instance.currentUser!.uid);
+
+    Map metadata = widget.groupRoom.metadata ?? {};
+    List req = metadata['userRequests'] ?? [];
+    reqCount = req.length;
 
     super.initState();
   }
@@ -333,12 +339,31 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                         ? Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Get.to(ViewUserRequestsPage(
-                                        groupRoom: widget.groupRoom));
-                                  },
-                                  child: const Text("View Circle Requests")),
+                              StreamBuilder(
+                                stream: FirebaseChatCore.instance.room(widget.groupRoom.id),
+                                builder: (BuildContext context,AsyncSnapshot<types.Room> snapshot) {
+                                  if(!(snapshot.connectionState==ConnectionState.waiting || (!(snapshot.hasData)))) {
+                                    types.Room newRoom = snapshot.data!;
+                                    Map metadata = newRoom.metadata ?? {};
+                                    List req = metadata['userRequests'] ?? [];
+                                    reqCount = req.length;
+                                  }
+
+                                  return ElevatedButton(
+                                      onPressed: () {
+                                        Get.to(ViewUserRequestsPage(
+                                            groupRoom: widget.groupRoom));
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text("View Circle Requests  "),
+                                          reqCount != 0 ?Text("($reqCount)", style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
+
+                                        ],
+                                      ));
+                                }
+                              ),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -650,7 +675,7 @@ class _MuteButtonState extends State<MuteButton> {
             },
             child: Text(muted ? "Unmute" : "Mute"),
             style: ElevatedButton.styleFrom(
-              primary: muted ? Colors.red : Colors.green,
+              primary: !muted ? Colors.red : Colors.green,
             ),
           );
   }

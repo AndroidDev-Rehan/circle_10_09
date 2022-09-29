@@ -68,8 +68,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle.light,
@@ -96,11 +94,11 @@ class _ChatPageState extends State<ChatPage> {
 
             ///GROUP APP BAR
             InkWell(
-              onTap: () {
-                print("group name pressed");
-                // Get.to(GroupInfoScreen(groupRoom: widget.room));
-              },
-              child: Row(
+                onTap: () {
+                  print("group name pressed");
+                  // Get.to(GroupInfoScreen(groupRoom: widget.room));
+                },
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ClipRRect(
@@ -113,26 +111,31 @@ class _ChatPageState extends State<ChatPage> {
                     const SizedBox(
                       width: 20,
                     ),
-                    Flexible(child: Text(widget.room.name!, overflow: TextOverflow.clip,softWrap: false,)),
+                    Flexible(
+                        child: Text(
+                      widget.room.name!,
+                      overflow: TextOverflow.clip,
+                      softWrap: false,
+                    )),
 
                     // Text(title),
                   ],
                 ),
-            ),
+              ),
         leading: null,
         centerTitle: true,
         actions: [
-          (widget.room.type == (types.RoomType.group)) ?
-              InkWell(
-                onTap: (){
-                  Get.to(GroupInfoScreen(groupRoom: widget.room));
-                },
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 12.0),
-                  child: Icon(Icons.info_outline),
-                ),
-              ) : SizedBox()
-
+          (widget.room.type == (types.RoomType.group))
+              ? InkWell(
+                  onTap: () {
+                    Get.to(GroupInfoScreen(groupRoom: widget.room));
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: Icon(Icons.info_outline),
+                  ),
+                )
+              : MuteTextButton(room: widget.room)
           // PopupMenuButton<String>(
           //   icon: Icon(CupertinoIcons.ellipsis_vertical),
           //   // icon: Icon(Icons.add_circle_outline_outlined, size: 36, color: Colors.white.withOpacity(0.8),),
@@ -222,8 +225,6 @@ class _ChatPageState extends State<ChatPage> {
                   child: Text('Video (Camera)'),
                 ),
               ),
-
-
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -285,19 +286,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleImageSelection({bool camera = false, bool video = false}) async {
-    final result =
-    (!video) ?
-(    await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
-      source: camera ? ImageSource.camera : ImageSource.gallery,
-    )
-) : (await ImagePicker().pickVideo(
-      maxDuration: Duration(seconds: 30),
-      source: ImageSource.camera
-    ));
+    final result = (!video)
+        ? (await ImagePicker().pickImage(
+            imageQuality: 70,
+            maxWidth: 1440,
+            source: camera ? ImageSource.camera : ImageSource.gallery,
+          ))
+        : (await ImagePicker().pickVideo(
+            maxDuration: Duration(seconds: 30), source: ImageSource.camera));
 
-    if (result != null && video==true) {
+    if (result != null && video == true) {
       _setAttachmentUploading(true);
       final name = result.name;
       final filePath = result.path;
@@ -327,7 +325,6 @@ class _ChatPageState extends State<ChatPage> {
       }
       return;
     }
-
 
     if (result != null) {
       _setAttachmentUploading(true);
@@ -421,13 +418,19 @@ class _ChatPageState extends State<ChatPage> {
         .update({"lastMsg": message.text});
     List registrationIds = [];
 
-    Map metadata = widget.room.metadata ?? {};
+    types.Room newRoom =
+        await FirebaseChatCore.instance.room(widget.room.id).first;
+
+    Map metadata = newRoom.metadata ?? {};
     List mutedBy = metadata['mutedBy'] ?? [];
-    for (var element in mutedBy) {element=element.toString();}
+    for (var element in mutedBy) {
+      element = element.toString();
+    }
 
-    for (var user in widget.room.users) {
+    print("muted by $mutedBy");
 
-      if (mutedBy.contains(user.id)){
+    for (var user in newRoom.users) {
+      if (mutedBy.contains(user.id)) {
         continue;
       }
 
@@ -442,13 +445,104 @@ class _ChatPageState extends State<ChatPage> {
 
     Map userMap = await CurrentUserInfo.getCurrentUserMap();
 
-    await DBOperations.sendNotification(registrationIds: registrationIds, title: "${userMap['firstName']} ${userMap['lastName']}", text: message.text, );
+    print("registration ids: $registrationIds");
 
+    await DBOperations.sendNotification(
+      registrationIds: registrationIds,
+      title: "${userMap['firstName']} ${userMap['lastName']}",
+      text: message.text,
+    );
   }
 
   void _setAttachmentUploading(bool uploading) {
     setState(() {
       _isAttachmentUploading = uploading;
     });
+  }
+}
+
+class MuteTextButton extends StatefulWidget {
+  final types.Room room;
+
+  const MuteTextButton({Key? key, required this.room}) : super(key: key);
+
+  @override
+  State<MuteTextButton> createState() => _MuteTextButtonState();
+}
+
+class _MuteTextButtonState extends State<MuteTextButton> {
+  bool muted = false;
+  List mutedIds = [];
+  Map metadata = {};
+  bool loading = false;
+
+  @override
+  void initState() {
+    metadata = widget.room.metadata ?? {};
+    mutedIds = metadata['mutedBy'] ?? [];
+    for (var element in mutedIds) {
+      element = element.toString();
+    }
+
+    ///If already muted
+    if (mutedIds.contains(FirebaseAuth.instance.currentUser!.uid)) {
+      muted = true;
+    }
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return loading
+        ? SizedBox(
+            height: 20,
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.white,),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: TextButton(
+                onPressed: () async {
+                  setState(() {
+                    loading = true;
+                  });
+
+                  if (muted) {
+                    mutedIds.removeWhere((element) =>
+                        element == FirebaseAuth.instance.currentUser!.uid);
+                    muted = false;
+                  } else {
+                    mutedIds.add(FirebaseAuth.instance.currentUser!.uid);
+                    muted = true;
+                  }
+
+                  metadata['mutedBy'] = mutedIds;
+                  await FirebaseFirestore.instance
+                      .collection('rooms')
+                      .doc(widget.room.id)
+                      .update({'metadata': metadata});
+                  setState(() {
+                    loading = false;
+                  });
+
+                  if (muted) {
+                    Get.snackbar("Success", "Circle Muted",
+                        backgroundColor: Colors.white);
+                  } else {
+                    Get.snackbar("Success", "Circle Unmuted",
+                        backgroundColor: Colors.white);
+                  }
+                },
+                child: Text(
+                  muted ? "Unmute" : "Mute",
+                  style: TextStyle(
+                      color: !muted? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                )),
+          );
   }
 }

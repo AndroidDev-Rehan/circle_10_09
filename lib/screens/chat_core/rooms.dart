@@ -266,8 +266,8 @@ class _RoomsPageState extends State<RoomsPage> {
                                                 );
                                               },
                                             ),
-                                            Spacer(),
-                                            muted ? Icon(CupertinoIcons.bell_slash_fill, color: Colors.white,) : SizedBox()
+                                            const Spacer(),
+                                            muted ? const Icon(CupertinoIcons.bell_slash_fill, color: Colors.white,) : SizedBox()
                                           ],
                                         )
                                       ],
