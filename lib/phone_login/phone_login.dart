@@ -18,7 +18,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
 
   void showAlert(BuildContext context, String content) {
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: const Text("OK"),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop('dialog');

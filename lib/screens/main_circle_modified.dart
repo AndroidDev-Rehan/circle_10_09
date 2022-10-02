@@ -409,17 +409,17 @@ class MainCircleState extends State<MainCircle> {
                           ElevatedButton(
                               child: const Text("View My Circles"),
                               onPressed: () {
-                                Get.to(RoomsPage());
+                                Get.to(const RoomsPage());
                                 // viewMyCircles(context);
                               }),
                           ElevatedButton(
                               child: const Text("View All Circles"),
                               onPressed: () {
-                                Get.to(AllCirclesScreen());
+                                Get.to(const AllCirclesScreen());
                                 // viewMyCircles(context);
                               }),
                           ElevatedButton(
-                              child: const Text("Join a Circle"),
+                              child: const Text("  Join a Circle  "),
                               onPressed: () async{
                                 Get.to(const SelectCircleToJoinScreen());
                                 // Get.to(AllCirclesScreen());
@@ -511,7 +511,7 @@ class MainCircleState extends State<MainCircle> {
                             ///VIEW CIRCLE INVITES REPLACEMENT
                               child: const Text("          Text         "),
                               onPressed: () {
-                                Get.to(UsersPage());
+                                Get.to(const UsersPage());
                                 // Navigator.push(
                                 //   context,
                                 //   MaterialPageRoute(
@@ -519,6 +519,20 @@ class MainCircleState extends State<MainCircle> {
                                 //       const ViewRequestsPage()),
                                 // );
                               }),
+                          ElevatedButton(
+
+                            ///VIEW CIRCLE INVITES REPLACEMENT
+                              child: const Text(" Add Contacts "),
+                              onPressed: () {
+                                Get.to(const UsersPage(onlyUsers: true,));
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) =>
+                                //       const ViewRequestsPage()),
+                                // );
+                              }),
+
                         ],
                       ),
                       // const NavigationBarItem(label: "messaging",icon: CupertinoIcons.bubble_left_bubble_right,),
