@@ -17,31 +17,31 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   // final TextEditingController _texFieldController2 = TextEditingController();
 
 
-  void showAlert(BuildContext context, String content) {
-    Widget okButton = TextButton(
-      child: const Text("OK"),
-      onPressed: () {
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-      },
-    );
-    AlertDialog dialog = AlertDialog(
-        title: const Text('Alert Dialog'),
-        actions: [ okButton,],
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('Error: $content'),
-            ],
-          ),
-        )
-    );
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return dialog;
-      },
-    );
-  }
+  // void showAlert(BuildContext context, String content) {
+  //   Widget okButton = TextButton(
+  //     child: const Text("OK"),
+  //     onPressed: () {
+  //       Navigator.of(context, rootNavigator: true).pop('dialog');
+  //     },
+  //   );
+  //   AlertDialog dialog = AlertDialog(
+  //       title: const Text('Alert Dialog'),
+  //       actions: [ okButton,],
+  //       content: SingleChildScrollView(
+  //         child: ListBody(
+  //           children: <Widget>[
+  //             Text('Error: $content'),
+  //           ],
+  //         ),
+  //       )
+  //   );
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return dialog;
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
