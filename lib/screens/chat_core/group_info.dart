@@ -205,9 +205,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                 child: ElevatedButton(
                                     onPressed: () {
                                       Get.off(AddMembersScreen(
-                                          groupRoom: widget.groupRoom));
+                                          groupRoom: widget.groupRoom, invite : true));
                                     },
-                                    child: const Text("Add Members")),
+                                    child:  Text((widget.groupRoom.metadata!["isChildCircle"] ?? false) ? "Add Users" : "Invite Users")),
                               ),
                         SizedBox(
                           width: (widget.groupRoom.metadata != null) &&

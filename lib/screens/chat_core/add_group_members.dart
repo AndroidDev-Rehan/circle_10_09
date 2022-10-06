@@ -11,12 +11,14 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
 
+import '../../userinfo.dart';
 import '../../utils/db_operations.dart';
 
 class AddMembersScreen extends StatefulWidget {
-  const AddMembersScreen({Key? key, required this.groupRoom, this.innerRoom}) : super(key: key);
+  const AddMembersScreen({Key? key, required this.groupRoom, this.innerRoom, this.invite = false}) : super(key: key);
   final types.Room groupRoom;
   final types.Room? innerRoom;
+  final bool invite;
 
   @override
   State<AddMembersScreen> createState() => _AddMembersScreenState();
@@ -103,10 +105,10 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     ) : Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16),
       child: ElevatedButton(
-        child: Text("Add to Circle".toUpperCase()),
+        child: Text("Invite Users".toUpperCase()),
         onPressed: () async{
           if(widget.innerRoom==null){
-                      await addMembers();
+                      await sendRequests();
                       Get.off(GroupInfoScreen(groupRoom: widget.groupRoom));
                     }
           else{
@@ -120,12 +122,12 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
   );
 
   ///TODO ADD FCM IDS
-  Future<void> addMembers() async{
+  Future<void> sendRequests() async{
 
-    widget.groupRoom.users.addAll(GroupController.selectedUsers);
+    // widget.groupRoom.users.addAll();
 
-    List<String> userIds = widget.groupRoom.users.map((types.User user) => user.id).toList();
-    List<String> fcmTokens = [];
+    List<String> userIds = GroupController.selectedUsers.map((types.User user) => user.id).toList();
+    // List<String> fcmTokens = [];
 
     setState((){
       loading = true;
@@ -133,25 +135,24 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
     try {
 
+      await FirebaseFirestore.instance.collection("rooms").doc(widget.groupRoom.id).update(
+          {
+            "requests" : FieldValue.arrayUnion(userIds)
+          }
+      );
 
-      // Map metadata = widget.groupRoom.metadata ?? {};
-      //
-      // try{
-      //   widget.groupRoom.users.forEach((types.User user) {
-      //     Map<String,dynamic> metadata = user.metadata ?? {};
-      //     List userTokens = metadata['fcmTokens'] ?? [];
-      //
-      //   });
-      //
-      // }
-      // catch(e){
-      //   rethrow;
-      // }
+      List registrationIds = [];
+      for (var user in GroupController.selectedUsers) {
+        Map map = user.metadata ?? {};
+        List fcmTokens = map['fcmTokens'] ?? [];
+        registrationIds.addAll(fcmTokens);
+      }
 
+      Map userMap = await CurrentUserInfo.getCurrentUserMap();
+      await DBOperations.sendNotification(registrationIds: registrationIds, title: "New Circle Invite", text: "${userMap['firstName']} ${userMap['lastName']} invited you to ${widget.groupRoom.name ?? "circle"}", );
 
-      await FirebaseFirestore.instance.collection("rooms")
-          .doc(widget.groupRoom.id)
-          .update({"userIds": userIds});
+      Get.snackbar("Success", "Invites Sent");
+
 
     }
     catch(e){
@@ -164,6 +165,41 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
 
 
   }
+
+  // Future<void> sendRequests(types.Room room,String circleName) async{
+  //
+  //   loading.value = true;
+  //
+  //   try{
+  //
+  //     final List<String> usersIdList = requestsListUsers.map((types.User user) => user.id).toList();
+  //
+  //     FirebaseFirestore.instance.collection("rooms").doc(room.id).update(
+  //         {
+  //           "requests" : usersIdList
+  //         }
+  //     );
+  //
+  //     List registrationIds = [];
+  //     for (var user in requestsListUsers) {
+  //       Map map = user.metadata ?? {};
+  //       List fcmTokens = map['fcmTokens'] ?? [];
+  //       registrationIds.addAll(fcmTokens);
+  //     }
+  //
+  //     Map userMap = await CurrentUserInfo.getCurrentUserMap();
+  //     await DBOperations.sendNotification(registrationIds: registrationIds, title: "New Circle Invite", text: "${userMap['firstName']} ${userMap['lastName']} invited you to $circleName", );
+  //
+  //     Get.snackbar("Success", "Invites Sent");
+  //
+  //   }
+  //   catch(e){
+  //     Get.snackbar("error", e.toString());
+  //
+  //   }
+  //
+  // }
+
 
 
   Future<void> addMembersInnerCircle() async{
