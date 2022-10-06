@@ -235,7 +235,8 @@ class CreateCircleState extends State<CreateCirclePage>{
                     'privacy': selectedPrivacy,
                     'managers': [
                       FirebaseAuth.instance.currentUser!.uid
-                  ]
+                  ],
+                    'description' : textControllerDescription.text
                   });
           print(groupRoom.id);
           Get.off(() => AddContactsScreen(

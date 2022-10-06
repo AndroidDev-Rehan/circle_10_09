@@ -12,8 +12,10 @@ import 'package:intl/intl.dart';
 import '../widgets/event_tile.dart';
 
 class CalendarListEventsScreen extends StatelessWidget {
-  CalendarListEventsScreen({Key? key, required this.circleId})
+  CalendarListEventsScreen({Key? key, required this.circleId,})
       : super(key: key);
+
+  // final bool global;
 
   final String circleId;
 
@@ -26,10 +28,13 @@ class CalendarListEventsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("View Events",),centerTitle: true),
+      appBar: AppBar(title: const Text("View Events",),centerTitle: true),
       body: SingleChildScrollView(
         child: StreamBuilder(
-            stream: FirebaseFirestore.instance
+            stream: (circleId=='global') ? FirebaseFirestore.instance
+                .collection('events')
+                .snapshots() :
+            FirebaseFirestore.instance
                 .collection('events')
                 .where('circleId', isEqualTo: circleId)
                 .snapshots(),

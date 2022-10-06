@@ -33,6 +33,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late String circleLink;
   final GroupInfoController groupInfoController = GroupInfoController();
   TextEditingController groupNameController = TextEditingController();
+  TextEditingController groupDesController = TextEditingController();
+
   bool isManager = false;
 
   int reqCount = 0;
@@ -40,6 +42,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   @override
   initState() {
     groupNameController.text = widget.groupRoom.name!;
+    groupDesController.text = widget.groupRoom.metadata!['description'] ?? "";
 
     List managers = (widget.groupRoom.metadata)?["managers"] ?? [];
 
@@ -95,25 +98,62 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     ),
                     Form(
                       key: _formKey,
-                      child: TextFormField(
-                          controller: groupNameController,
-                          validator: (String? value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Circle name can't be empty";
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            label: Text(
-                              "Circle Name",
-                              style: TextStyle(fontWeight: FontWeight.normal),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                              controller: groupNameController,
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Circle name can't be empty";
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                label: Text(
+                                  "Circle Name",
+                                  style: TextStyle(fontWeight: FontWeight.normal),
+                                ),
+                                isDense: true,
+                                enabledBorder: OutlineInputBorder(),
+                                focusedBorder: OutlineInputBorder(),
+                              ),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 25)),
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 100,
+                            child: TextFormField(
+                              // initialValue: "",
+                                controller: groupDesController,
+                                validator: (String? value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "Circle name can't be empty";
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  label: Text(
+                                    "Circle Description",
+                                    style: TextStyle(fontWeight: FontWeight.normal),
+                                  ),
+                                  isDense: true,
+                                  enabledBorder: OutlineInputBorder(),
+                                  focusedBorder: OutlineInputBorder(),
+                                  hintText: "Enter Circle Description here"
+                                ),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.normal, fontSize: 20),
+                              maxLines: null,
+                              minLines: null,
+                              readOnly: false,
+                              expands: true,
+
+
                             ),
-                            isDense: true,
-                            enabledBorder: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(),
                           ),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20)),
+                        ],
+                      ),
                     ),
                     const SizedBox(
                       height: 20,
@@ -530,7 +570,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             // print("hello");
-                            await _updateGroupName();
+                            await _updateGroupNameAndDesc();
                             Get.offAll(
                               const MainCircle(),
                             );
@@ -580,17 +620,20 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         .update({'metadata': metadata});
   }
 
-  Future<void> _updateGroupName() async {
+  Future<void> _updateGroupNameAndDesc() async {
     // setState(() {
     //   loading = true;
     // });
 
     groupInfoController.loading.value = true;
 
+    Map metadata = widget.groupRoom.metadata ?? {};
+    metadata['description'] = groupDesController.text;
+
     await FirebaseFirestore.instance
         .collection("rooms")
         .doc(widget.groupRoom.id)
-        .update({"name": groupNameController.text});
+        .update({"name": groupNameController.text, 'metadata' : metadata});
 
     groupInfoController.loading.value = false;
   }

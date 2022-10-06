@@ -18,6 +18,7 @@ import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
 import '../notification_service/local_notification_service.dart';
 import '../utils/db_operations.dart';
+import 'calendar_list_events.dart';
 import 'chat_core/rooms.dart';
 import 'chat_core/view_requests_page.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
@@ -532,6 +533,19 @@ class MainCircleState extends State<MainCircle> {
                                 //       const ViewRequestsPage()),
                                 // );
                               }),
+                          ElevatedButton(
+
+                            ///VIEW CIRCLE INVITES REPLACEMENT
+                              child: const Text("View Circles Events", style: TextStyle(fontSize: 15),),
+                              onPressed: () {
+                                Get.to(CalendarListEventsScreen(circleId: 'global',));
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) =>
+                                //       const ViewRequestsPage()),
+                                // );
+                              })
 
                         ],
                       ),
