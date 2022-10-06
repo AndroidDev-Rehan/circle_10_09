@@ -30,7 +30,54 @@ class ProfileController extends GetxController{
     return downloadUrl;
   }
 
-  Future<void> saveInfo({required String firstName, required String lastName, required String imageUrl , bool createIt = false }) async{
+  Future<void> saveInfo({required String hobby, required String music, required String band, required String book, required String imageUrl , bool createIt = false }) async{
+    loading.value = true;
+    try{
+      print("picked file is ${pickedFile?.path}");
+
+      if(createIt){
+        String fcmToken = await DBOperations.getDeviceTokenToSendNotification();
+        List<String> tokenList = [fcmToken];
+        await FirebaseChatCore.instance.createUserInFirestore(
+          types.User(
+              firstName: hobby,
+              id: FirebaseAuth.instance.currentUser!.uid,
+              imageUrl: (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl,
+              lastName: music,
+              metadata: {
+                "fcmTokens":tokenList
+              }
+          ),
+        );
+
+        Get.to(const MainCircle());
+      }
+
+      else{
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({
+          'fvrtHobby': hobby,
+          'fvrtMusic': music,
+          'fvrtBook' : book,
+          'fvrtBand' : band,
+          'imageUrl':
+          (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl
+        });
+        Get.back();
+      }
+      Get.snackbar("Success", "Info saved", backgroundColor: Colors.white);
+    }
+    catch(e){
+      print(e);
+      Get.snackbar("Error", e.toString());
+    }
+    loading.value = false;
+  }
+
+
+Future<void> saveInfo1({required String firstName, required String lastName, required String imageUrl , bool createIt = false }) async{
     loading.value = true;
     try{
       print("picked file is ${pickedFile?.path}");
@@ -73,5 +120,7 @@ class ProfileController extends GetxController{
     }
     loading.value = false;
   }
+
+
 
 }

@@ -79,7 +79,7 @@ class CollectUserInfo extends StatelessWidget {
                     : ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            await profileController.saveInfo(
+                            await profileController.saveInfo1(
                                 firstName:
                                     profileController.firstNameController.text,
                                 lastName: "",
