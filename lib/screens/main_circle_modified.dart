@@ -24,7 +24,6 @@ import '../utils/db_operations.dart';
 import 'calendar_list_events.dart';
 import 'chat_core/rooms.dart';
 import 'chat_core/view_requests_page.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class MainCircle extends StatefulWidget {
   const MainCircle({Key? key}) : super(key: key);

@@ -2,10 +2,7 @@ import 'package:circle/models/event_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 
 import '../utils/db_operations.dart';
@@ -41,7 +38,7 @@ class _EventAcceptRejectWidgetState extends State<EventAcceptRejectWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(DateFormat("dd/mm/yyyy").format(DateTime.fromMillisecondsSinceEpoch(widget.event.eventDate.millisecondsSinceEpoch)), style: TextStyle(fontWeight: FontWeight.normal,fontSize: 16),),
+            Text(DateFormat("dd/MM/yyyy").format(DateTime.fromMillisecondsSinceEpoch(widget.event.eventDate.millisecondsSinceEpoch)), style: TextStyle(fontWeight: FontWeight.normal,fontSize: 16),),
             SizedBox(height: 5,),
 
             Row(
