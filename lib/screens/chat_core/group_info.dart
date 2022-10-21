@@ -245,6 +245,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                 TextEditingController idController =
                                     TextEditingController();
                                 Map? userMap;
+                                String? documentId;
                                 tried = false;
                                 await showDialog(
                                     context: context,
@@ -270,16 +271,28 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                             ElevatedButton(
                                                 onPressed: () async {
                                                   tried = true;
-                                                  DocumentSnapshot<Map>
-                                                      documentSnapshot =
-                                                      await FirebaseFirestore
-                                                          .instance
-                                                          .collection("users")
-                                                          .doc(
-                                                              idController.text)
-                                                          .get();
-                                                  userMap =
-                                                      documentSnapshot.data();
+                                                  QuerySnapshot<Map<String,dynamic>> collection = await FirebaseFirestore.instance.collection("users").get();
+                                                  for (var document in collection.docs) {
+                                                    // QueryDocumentSnapshot<Map<String,dynamic>> doc = document;
+                                                    Map map = document.data();
+                                                    Map metadata = map['metadata'];
+                                                    if(metadata['user_id'] == idController.text ){
+                                                      userMap = map;
+                                                      documentId = document.id;
+                                                      break;
+                                                    }
+                                                  }
+
+                                                  // DocumentSnapshot<Map>
+                                                  //     documentSnapshot =
+                                                  //     await FirebaseFirestore
+                                                  //         .instance
+                                                  //         .collection("users")
+                                                  //         .doc(
+                                                  //             idController.text)
+                                                  //         .get();
+                                                  // userMap =
+                                                  //     documentSnapshot.data();
                                                   Navigator.pop(context);
                                                 },
                                                 child: Text("Confirm"))
@@ -333,7 +346,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                           .update({
                                                         "userIds": FieldValue
                                                             .arrayUnion([
-                                                          idController.text
+                                                          documentId!
                                                         ])
                                                       });
                                                       Navigator.pop(context);

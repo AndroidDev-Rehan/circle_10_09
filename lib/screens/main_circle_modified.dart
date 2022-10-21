@@ -4,6 +4,7 @@ import 'package:circle/screens/all_circles_screen.dart';
 import 'package:circle/screens/chat_core/search_chat_screen.dart';
 import 'package:circle/screens/chat_core/search_users.dart';
 import 'package:circle/screens/chat_core/users.dart';
+import 'package:circle/screens/contacts_screen.dart';
 import 'package:circle/screens/profile_screen.dart';
 import 'package:circle/screens/selectCircleToJoin.dart';
 import 'package:circle/screens/view_circle_page.dart';
@@ -136,9 +137,13 @@ class MainCircleState extends State<MainCircle> {
                   AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
                       snapshot) {
                 userMap = snapshot.data?.data();
+                Map metadata = userMap?['metadata'] ?? {};
+
                 if (userMap != null) {
                   CurrentUserInfo.userMap = userMap;
+                  metadata = userMap!['metadata'];
                 }
+
 
                 return Drawer(
                   child: Container(
@@ -155,7 +160,7 @@ class MainCircleState extends State<MainCircle> {
                                 : Text(
                                     "${userMap!["firstName"]} ${userMap!["lastName"]}"),
                             accountEmail: Text(
-                                FirebaseAuth.instance.currentUser!.email ?? ""),
+                                metadata['user_id'] ?? ""),
                             currentAccountPicture: userMap == null
                                 ? null
                                 : CircleAvatar(
@@ -523,7 +528,7 @@ class MainCircleState extends State<MainCircle> {
                           ElevatedButton(
 
                             ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text(" Add Contacts "),
+                              child: const Text("   Circle Users   "),
                               onPressed: () {
                                 Get.to(const UsersPage(onlyUsers: true,));
                                 // Navigator.push(
@@ -545,7 +550,21 @@ class MainCircleState extends State<MainCircle> {
                                 //       builder: (context) =>
                                 //       const ViewRequestsPage()),
                                 // );
+                              }),
+                          ElevatedButton(
+
+                            ///VIEW CIRCLE INVITES REPLACEMENT
+                              child: const Text("View Phone Contacts", style: TextStyle(fontSize: 15),),
+                              onPressed: () {
+                                Get.to(ViewPhoneContactsScreen());
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //       builder: (context) =>
+                                //       const ViewRequestsPage()),
+                                // );
                               })
+
 
                         ],
                       ),

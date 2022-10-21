@@ -62,6 +62,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   border: UnderlineInputBorder(),
                   labelText: 'Enter your phoneNo',
                 ),
+                keyboardType: TextInputType.number,
               ),
             ),
             const SizedBox(

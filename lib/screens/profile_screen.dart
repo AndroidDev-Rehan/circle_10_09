@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:circle/phone_login/collect_user_info.dart';
 import 'package:circle/profileController.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,6 +52,12 @@ class ProfileScreen extends StatelessWidget {
                 // emailController.text = FirebaseAuth.instance.currentUser!.email;
 
                 print(userMap);
+                if(userMap['metadata']==null){
+                  Get.offAll(CollectUserInfo(phoneNo: FirebaseAuth.instance.currentUser!.phoneNumber!));
+                  return SizedBox();
+                }
+
+                Map metadata = userMap['metadata'] ?? {};
 
                 return SingleChildScrollView(
                   child: Column(
@@ -83,7 +90,6 @@ class ProfileScreen extends StatelessWidget {
                                       const Text(
                                         "User Id:",
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold,
                                             fontSize: 20),
                                       ),
                                       const SizedBox(
@@ -91,16 +97,19 @@ class ProfileScreen extends StatelessWidget {
                                       ),
                                       Expanded(
                                           child: Text(
-                                        FirebaseAuth.instance.currentUser!.uid,
-                                        style: TextStyle(fontSize: 18),
+                                        metadata['user_id'],
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+
+                                        ),
                                         textAlign: TextAlign.center,
                                       )),
                                       IconButton(
                                           onPressed: () async {
                                             await Clipboard.setData(
                                                 ClipboardData(
-                                                    text: FirebaseAuth.instance
-                                                        .currentUser!.uid));
+                                                    text: metadata['user_id']));
                                             Get.snackbar("Success",
                                                 "User Id Copied to Clipboard",
                                                 backgroundColor: Colors.white);

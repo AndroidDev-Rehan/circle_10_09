@@ -14,8 +14,9 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 class ProfileController extends GetxController{
   Rx<bool> loading = false.obs;
   XFile? pickedFile;
+  Rx<String> usernameId = '@circle'.obs;
 
-  final TextEditingController firstNameController = TextEditingController();
+  final Rx<TextEditingController> firstNameController = TextEditingController().obs;
   // final TextEditingController lastNameController = TextEditingController();
 
 
@@ -29,6 +30,7 @@ class ProfileController extends GetxController{
     });
     return downloadUrl;
   }
+
 
   Future<void> saveInfo({required String hobby, required String music, required String band, required String book, required String imageUrl , bool createIt = false }) async{
     loading.value = true;
@@ -82,7 +84,7 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
     try{
       print("picked file is ${pickedFile?.path}");
 
-      if(createIt){
+      if(!(await usernameIdExists())){
         String fcmToken = await DBOperations.getDeviceTokenToSendNotification();
         List<String> tokenList = [fcmToken];
         await FirebaseChatCore.instance.createUserInFirestore(
@@ -92,7 +94,8 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
             imageUrl: (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl,
             lastName: lastName,
             metadata: {
-              "fcmTokens":tokenList
+              "fcmTokens":tokenList,
+              'user_id' : usernameId.value,
             }
           ),
         );
@@ -101,16 +104,8 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
       }
 
       else{
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({
-          'firstName': firstName,
-          'lastName': lastName,
-          'imageUrl':
-              (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl
-        });
-        Get.back();
+        Get.snackbar("Req Failed", "Username is already taken", backgroundColor: Colors.white);
+        return;
       }
       Get.snackbar("Success", "Info saved", backgroundColor: Colors.white);
     }
@@ -121,6 +116,21 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
     loading.value = false;
   }
 
+  Future<bool> usernameIdExists() async{
+   List<types.User> users = await FirebaseChatCore.instance.users().first;
+   for (var user in users) {
+     Map metadata = {};
 
+     if (user.metadata == null){
+       continue;
+     }
+     metadata = user.metadata!;
 
+     if (metadata['user_id'] == usernameId.value){
+       return true;
+    }
+
+   }
+   return false;
+  }
 }

@@ -43,6 +43,7 @@ void main() async{
   // if(FirebaseAuth.instance.currentUser!=null){
   //   await getUserMap(FirebaseAuth.instance.currentUser!.uid);
   // }
+  // await FirebaseAuth.instance.signOut();
 
   runApp(const App());
 

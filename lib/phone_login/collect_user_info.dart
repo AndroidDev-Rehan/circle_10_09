@@ -42,12 +42,18 @@ class CollectUserInfo extends StatelessWidget {
                   child: _buildCustomTextField("Your Name",
                       readOnly: false,
                       textEditingController: profileController
-                          .firstNameController, validator: (value) {
+                          .firstNameController.value, validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Field is required";
                     }
-                  }),
+                  },
+                    onChanged: true
+                  ),
                 ),
+                Obx(() => Text(
+                  profileController.usernameId.value,
+                  style: const TextStyle(color: Colors.black, fontSize: 20),
+                )),
                 // Padding(
                 //   padding: EdgeInsets.symmetric(
                 //       horizontal: paddingRes30, vertical: 8),
@@ -81,7 +87,7 @@ class CollectUserInfo extends StatelessWidget {
                           if (_formKey.currentState!.validate()) {
                             await profileController.saveInfo1(
                                 firstName:
-                                    profileController.firstNameController.text,
+                                    profileController.firstNameController.value.text,
                                 lastName: "",
                                 imageUrl:
                                     "https://i.pravatar.cc/300?u=$phoneNo",
@@ -103,7 +109,7 @@ class CollectUserInfo extends StatelessWidget {
   Widget _buildCustomTextField(String hintText,
       {bool readOnly = false,
       required TextEditingController textEditingController,
-      required FormFieldValidator<String>? validator}) {
+      required FormFieldValidator<String>? validator, bool onChanged = false }) {
     return TextFormField(
       validator: validator,
       controller: textEditingController,
@@ -141,6 +147,12 @@ class CollectUserInfo extends StatelessWidget {
         color: Colors.black,
       ),
       cursorColor: Colors.black,
+      onChanged: (value){
+        if(onChanged){
+          profileController.usernameId.value = (value + "@circle").removeAllWhitespace;
+          // profileController.usernameId.value.;
+        }
+      },
     );
   }
 }
