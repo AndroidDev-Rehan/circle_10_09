@@ -10,6 +10,10 @@ class EventModel{
   final Map<String,dynamic> userIdsAndSuggestedTimes;
   final String eventId;
   final String circleId;
+  final String createdBy;
+  final List invitedUsers;
+  final List usersGoing;
+  final List usersNotGoing;
 
   const EventModel({
     required this.title,
@@ -19,7 +23,15 @@ class EventModel{
     required this.eventBestTimeInSeconds,
     required this.userIdsAndSuggestedTimes,
     required this.eventId,
-    required this.circleId
+    required this.circleId,
+    required this.createdBy,
+    this.invitedUsers = const [],
+    this.usersGoing = const [],
+    this.usersNotGoing = const [],
+
+
+
+
   });
 
   Map<String, dynamic> toMap() {
@@ -32,6 +44,10 @@ class EventModel{
       'userIdsAndSuggestedTimes': userIdsAndSuggestedTimes,
       'eventId': eventId,
       'circleId': circleId,
+      'createdBy' : createdBy,
+      'invitedUsers': invitedUsers,
+      'usersGoing' : usersGoing,
+      'usersNotGoing': usersNotGoing
     };
   }
 
@@ -45,6 +61,11 @@ class EventModel{
       userIdsAndSuggestedTimes: map['userIdsAndSuggestedTimes'] as Map<String, dynamic>,
       eventId: map['eventId'] as String,
       circleId: map['circleId'],
+      createdBy: map['createdBy'],
+      invitedUsers: map['invitedUsers'],
+      usersGoing: map["usersGoing"],
+      usersNotGoing: map['usersNotGoing'],
+
     );
   }
 }

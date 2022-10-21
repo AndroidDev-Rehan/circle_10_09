@@ -34,30 +34,33 @@ class AllCirclesScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0, top: 10),
-                        child: const Text("My Circles : ", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
-                      ),
-                      const SizedBox(height: 10,),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 20.0, top: 10),
+                          child: Text("My Circles  ", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
+                        ),
+                        const SizedBox(height: 10,),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 20.0, top: 10),
+                          child: Text("Joined ", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),),
+                        ),
 
-
-                      Expanded(
-                        child: StreamBuilder<List<types.Room>>(
+                        StreamBuilder<List<types.Room>>(
                           stream: FirebaseChatCore.instance.rooms(),
                           initialData: const [],
                           builder: (context,AsyncSnapshot<List<types.Room>> snapshot) {
                             // print("Hiragino Kaku Gothic ProN");
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
                               return Container(
-                                alignment: Alignment.center,
-                                margin: const EdgeInsets.only(
-                                  bottom: 200,
-                                ),
-                                child: const Text('No Circles'),
+                                // alignment: Alignment.center,
+                                // margin: const EdgeInsets.only(
+                                //   bottom: 200,
+                                // ),
+                                // child: const Text('No Circles'),
                               );
                             }
 
@@ -70,8 +73,8 @@ class AllCirclesScreen extends StatelessWidget {
                             }
 
                             return ListView.builder(
-                              // shrinkWrap: true,
-                              // physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
 
                               itemCount: snapshot.data!.length,
                               itemBuilder: (context, index) {
@@ -161,44 +164,14 @@ class AllCirclesScreen extends StatelessWidget {
                             );
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20,),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 20.0),
-          //   child: const Text("Other Circles ", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
-          // ),
-          // const SizedBox(height: 10,),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Material(
-                color: Colors.lightBlueAccent,
-                elevation: 5,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
 
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(height: 10,),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Text("Other Circles: ", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
-                      ),
-                      const SizedBox(height: 10,),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0, top: 10),
+                          child: const Text("Not Joined ", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),),
+                        ),
 
-                      Expanded(
-                        child: StreamBuilder(
+
+                        StreamBuilder(
                             stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
                             builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot){
                               if(snapshot.connectionState == ConnectionState.waiting){
@@ -214,6 +187,8 @@ class AllCirclesScreen extends StatelessWidget {
                               }
 
                               return ListView.builder(
+                                shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
                                   itemCount: snapshot.data!.size,
                                   itemBuilder: (context,index){
                                     Map<String,dynamic> circleMap = snapshot.data!.docs[index].data();
@@ -236,14 +211,85 @@ class AllCirclesScreen extends StatelessWidget {
                               );
 
                             }),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 20,),
+
+          // Expanded(
+          //   child: Padding(
+          //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          //     child: Material(
+          //       color: Colors.lightBlueAccent,
+          //       elevation: 5,
+          //       borderRadius: BorderRadius.circular(16),
+          //       child: Container(
+          //         decoration: BoxDecoration(
+          //           borderRadius: BorderRadius.circular(16),
+          //         ),
+          //
+          //         child: Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           mainAxisSize: MainAxisSize.min,
+          //           children: [
+          //             SizedBox(height: 10,),
+          //             const Padding(
+          //               padding: EdgeInsets.only(left: 20.0),
+          //               child: Text("Other Circles: ", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),),
+          //             ),
+          //             const SizedBox(height: 10,),
+          //
+          //             Expanded(
+          //               child: StreamBuilder(
+          //                   stream: FirebaseFirestore.instance.collection('rooms').snapshots(),
+          //                   builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot){
+          //                     if(snapshot.connectionState == ConnectionState.waiting){
+          //                       return const Center(
+          //                         child: CircularProgressIndicator(),
+          //                       );
+          //                     }
+          //
+          //                     if (!snapshot.hasData){
+          //                       return const Center(
+          //                         child: Text("No circles to show"),
+          //                       );
+          //                     }
+          //
+          //                     return ListView.builder(
+          //                         itemCount: snapshot.data!.size,
+          //                         itemBuilder: (context,index){
+          //                           Map<String,dynamic> circleMap = snapshot.data!.docs[index].data();
+          //                           // Map metadata = circleMap['metadata'] ?? {};
+          //                           List userIds = circleMap['userIds'] ?? [];
+          //
+          //                           print(circleMap);
+          //
+          //                           for (var element in userIds) {element = element.toString();}
+          //                           print(circleMap['name']);
+          //                           print("$userIds\n");
+          //
+          //
+          //                           if ((circleMap["type"]=="group") && (!(userIds.contains(FirebaseAuth.instance.currentUser!.uid)))) {
+          //                             return buildCircleContainer(circleMap);
+          //                           }
+          //                           return const SizedBox();
+          //                         }
+          //
+          //                     );
+          //
+          //                   }),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 20,),
 
         ],
       ),
@@ -310,7 +356,7 @@ class AllCirclesScreen extends StatelessWidget {
       child: CircleAvatar(
         backgroundColor: hasImage ? Colors.transparent : color,
         backgroundImage: hasImage ? NetworkImage(room.imageUrl!) : null,
-        radius: 25,
+        radius: 30,
         child: !hasImage
             ? Text(
           name.isEmpty ? '' : name[0].toUpperCase(),

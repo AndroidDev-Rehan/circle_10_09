@@ -86,8 +86,15 @@ class _SingleUserTileState extends State<SingleUserTile> {
 
   Future<void> removeMember() async{
 
-    widget.groupRoom.users.removeWhere((types.User user) => (user.id == widget.user.id));
-    List<String> userIds = widget.groupRoom.users.map((types.User user) => user.id).toList();
+
+    print(widget.groupRoom.users.length);
+    print(widget.groupRoom.users);
+    // return;
+
+    List userIds = [widget.user.id];
+
+    // widget.groupRoom.users.removeWhere((types.User user) => (user.id == widget.user.id));
+    // List<String> userIds = widget.groupRoom.users.map((types.User user) => user.id).toList();
 
     if(mounted){
       setState(() {
@@ -95,11 +102,10 @@ class _SingleUserTileState extends State<SingleUserTile> {
       });
     }
 
-    ///TODO ADD FCM IDS
     try {
       await FirebaseFirestore.instance.collection("rooms")
           .doc(widget.groupRoom.id)
-          .update({"userIds": userIds});
+          .update({"userIds": FieldValue.arrayRemove(userIds)});
       deleted = true;
     }
     catch(e){

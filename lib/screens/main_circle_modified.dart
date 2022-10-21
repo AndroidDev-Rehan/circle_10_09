@@ -8,6 +8,7 @@ import 'package:circle/screens/contacts_screen.dart';
 import 'package:circle/screens/profile_screen.dart';
 import 'package:circle/screens/selectCircleToJoin.dart';
 import 'package:circle/screens/view_circle_page.dart';
+import 'package:circle/screens/view_event_invites.dart';
 import 'package:circle/userinfo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:circle/screens/Create_Circle_screen.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
+import '../models/event_model.dart';
 import '../notification_service/local_notification_service.dart';
 import '../utils/db_operations.dart';
 import 'calendar_list_events.dart';
@@ -512,6 +514,61 @@ class MainCircleState extends State<MainCircle> {
                                   });
                             }
                           ),
+
+                          StreamBuilder(
+                              stream: FirebaseFirestore.instance.collection("events").snapshots(),
+                              builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot) {
+
+                                if(snapshot.connectionState == ConnectionState.waiting || (!(snapshot.hasData))){
+                                  return ElevatedButton(
+                                      child: const Text(" Event Invites "),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                              const ViewEventInvites()),
+                                        );
+                                      });
+                                }
+
+                                int count = 0;
+
+                                QuerySnapshot<Map<String,dynamic>> allEventsCollection = snapshot.data!;
+
+                                for (int i=0; i<allEventsCollection.docs.length; i++){
+
+
+                                  final EventModel event  = EventModel.fromMap(allEventsCollection.docs[i].data());
+
+
+                                  if(event.invitedUsers.contains(FirebaseAuth.instance.currentUser!.uid)){
+                                    // print("trying");
+                                    // print(map);
+                                    count = count +1;
+                                  }
+                                }
+
+
+                                return ElevatedButton(
+                                    child: Row(
+                                      children: [
+                                        const Text("Event Invites  "),
+                                        count != 0 ?Text("($count)", style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
+                                      ],
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                            const ViewEventInvites()),
+                                      );
+
+                                    });
+                              }
+                          ),
+
                           ElevatedButton(
 
                             ///VIEW CIRCLE INVITES REPLACEMENT
@@ -563,7 +620,7 @@ class MainCircleState extends State<MainCircle> {
                                 //       builder: (context) =>
                                 //       const ViewRequestsPage()),
                                 // );
-                              })
+                              }),
 
 
                         ],

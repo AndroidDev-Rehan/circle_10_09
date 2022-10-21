@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import 'invite_users_event.dart';
+
 class AddEventScreen extends StatefulWidget {
   const AddEventScreen({Key? key, required this.circleId}) : super(key: key);
   final String circleId;
@@ -154,8 +156,10 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           setState((){
                             loading = true;
                           });
-                          await _addEvent();
-                          Get.back();
+                          String eventId = const Uuid().v4();
+
+                          await _addEvent(eventId);
+                          Get.off(()=>InviteUsersEventScreen(eventId: eventId,));
                           setState((){
                             loading = false;
                           });
@@ -170,10 +174,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
     );
   }
 
-  _addEvent()async{
+  _addEvent(String eventId)async{
     try{
-      String eventId = const Uuid().v4();
-      EventModel eventModel = EventModel(title: titleController.text, description: descController.text, createdAt: Timestamp.now(), eventDate: Timestamp.fromMillisecondsSinceEpoch(selectedDate!.millisecondsSinceEpoch), eventBestTimeInSeconds: getNoOfSeconds(selectedTime!), userIdsAndSuggestedTimes: { FirebaseAuth.instance.currentUser!.uid : getNoOfSeconds(selectedTime!) }, eventId: eventId, circleId: widget.circleId);
+      EventModel eventModel = EventModel(title: titleController.text, description: descController.text, createdAt: Timestamp.now(), eventDate: Timestamp.fromMillisecondsSinceEpoch(selectedDate!.millisecondsSinceEpoch), eventBestTimeInSeconds: getNoOfSeconds(selectedTime!), userIdsAndSuggestedTimes: { FirebaseAuth.instance.currentUser!.uid : getNoOfSeconds(selectedTime!) }, eventId: eventId, circleId: widget.circleId, createdBy: FirebaseAuth.instance.currentUser!.uid);
       String subCollectionName = DateFormat("dd-MM-yyyy").format(selectedDate!);
       await FirebaseFirestore.instance.collection("events").doc(eventId).set(eventModel.toMap());
     }

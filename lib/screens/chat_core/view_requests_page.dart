@@ -20,27 +20,6 @@ class _ViewRequestsPageState extends State<ViewRequestsPage> {
   void initState(){
     super.initState();
 
-    // FirebaseMessaging.onMessage.listen(
-    //       (message) {
-    //     print("FirebaseMessaging.onMessage.listen");
-    //     if (message.notification != null) {
-    //       print(message.notification!.title);
-    //       print(message.notification!.body);
-    //       print("message.data11 ${message.data}");
-    //       // LocalNotificationService.createanddisplaynotification(message);
-    //       if((message.notification?.title?.toLowerCase().contains("invite") ?? false) || (message.notification?.body?.toLowerCase().contains("invite") ?? false)){
-    //         print("setting state");
-    //         setState(() {
-    //
-    //         });
-    //
-    //       }
-    //
-    //
-    //     }
-    //   },
-    // );
-
 
   }
 
@@ -142,47 +121,3 @@ class _ViewRequestsPageState extends State<ViewRequestsPage> {
   }
 }
 
-// types.Room roomFromMap(Map<String,dynamic> json, String id){
-//
-//   // return types.Room(
-//   //   createdAt: json['createdAt'] as int?,
-//   //   id: id,
-//   //   imageUrl: json['imageUrl'] as String?,
-//   //   lastMessages: (json['lastMessages'] as List<dynamic>?)
-//   //       ?.map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-//   //       .toList(),
-//   //   metadata: json['metadata'] as Map<String, dynamic>?,
-//   //   name: json['name'] as String?,
-//   //   type: checkRoomType(json['name']),
-//   //   updatedAt: json['updatedAt'] as int?,
-//   //   users: (json['users'] as List<dynamic>)
-//   //       .map((e) => types.User.fromJson(e as Map<String, dynamic>))
-//   //       .toList(),
-//   // );
-//
-//
-// }
-//
-// types.User userFromMap(Map<String,dynamic> json){
-// return types.User(
-//   createdAt: null,
-//   firstName: json['firstName'] as String?,
-//   id: ,
-//   imageUrl: json['imageUrl'] as String?,
-//   lastName: json['lastName'] as String?,
-//   lastSeen: null,
-//   metadata: null,
-//   role: null,
-//   updatedAt: null,
-// );
-//
-// }
-
-// types.RoomType checkRoomType(String x){
-//   if(x=="group"){
-//     return types.RoomType.group;
-//   }
-//   else{
-//     return types.RoomType.direct;
-//   }
-// }
