@@ -45,7 +45,7 @@ class _EventAcceptRejectWidgetState extends State<EventAcceptRejectWidget> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Text(widget.event.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
+                  child: Text(widget.event.title.length > 18 ? widget.event.title.substring(0,18) : widget.event.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
                 ),
                 Spacer(),
                 Text(Duration(seconds: widget.event.eventBestTimeInSeconds).toString().substring(0, (Duration(seconds: widget.event.eventBestTimeInSeconds).toString().length > 14) ? 5 : 4), style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),)
