@@ -201,14 +201,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
    }
 
    Widget buildUserTile(Map<String,dynamic> userMap){
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildAvatar(userMap),
-        SizedBox(width: 15,),
-        Text(userMap['firstName'] ?? "")
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildAvatar(userMap),
+          const SizedBox(width: 15,),
+          Text(userMap['firstName'] ?? "")
 
-      ],
+        ],
+      ),
     );
   }
 
@@ -237,21 +240,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
      if(widget.eventModel.invitedUsers.contains(element.id)){
        invitedUsers.add(element.data());
-       break;
      }
 
-     if(widget.eventModel.usersGoing.contains(element.id)){
+     else if(widget.eventModel.usersGoing.contains(element.id)){
        goingUsers.add(element.data());
-       break;
      }
 
 
-     if(widget.eventModel.usersNotGoing.contains(element.id)){
+     else if(widget.eventModel.usersNotGoing.contains(element.id)){
        notGoingUsers.add(element.data());
-       break;
      }
-
-
 
    }
 

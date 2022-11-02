@@ -61,7 +61,7 @@ class EventModel{
       userIdsAndSuggestedTimes: map['userIdsAndSuggestedTimes'] as Map<String, dynamic>,
       eventId: map['eventId'] as String,
       circleId: map['circleId'],
-      createdBy: map['createdBy'],
+      createdBy: map['createdBy'] ?? "abc",
       invitedUsers: map['invitedUsers'],
       usersGoing: map["usersGoing"],
       usersNotGoing: map['usersNotGoing'],
