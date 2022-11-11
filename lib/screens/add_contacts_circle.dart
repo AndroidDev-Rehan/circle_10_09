@@ -9,8 +9,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
 import '../request_controller.dart';
-import 'chat_core/chat.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 ///Add contacts and send requests for adding them in circle / group
 

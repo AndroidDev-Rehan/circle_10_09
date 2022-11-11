@@ -96,6 +96,7 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
             metadata: {
               "fcmTokens":tokenList,
               'user_id' : usernameId.value,
+              'phone' : FirebaseAuth.instance.currentUser!.phoneNumber
             }
           ),
         );
@@ -105,6 +106,7 @@ Future<void> saveInfo1({required String firstName, required String lastName, req
 
       else{
         Get.snackbar("Req Failed", "Username is already taken", backgroundColor: Colors.white);
+        loading.value = false;
         return;
       }
       Get.snackbar("Success", "Info saved", backgroundColor: Colors.white);

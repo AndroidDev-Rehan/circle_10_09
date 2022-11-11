@@ -14,6 +14,7 @@ class CollectUserInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // profileController.loading.value = false;
     print(Get.width);
     double paddingRes30 = Get.width * 0.070093;
 

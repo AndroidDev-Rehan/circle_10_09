@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'notification_service/local_notification_service.dart';
@@ -40,6 +41,13 @@ void main() async{
 
   print( "user token: ${await FirebaseMessaging.instance.getToken()}");
 
+  bool contactsPerm = await FlutterContacts.requestPermission();
+  if(contactsPerm){
+    print("contacts perm granted");
+  }
+  else {
+    print("contacts perm not granted");
+  }
   // if(FirebaseAuth.instance.currentUser!=null){
   //   await getUserMap(FirebaseAuth.instance.currentUser!.uid);
   // }
@@ -85,6 +93,8 @@ class AppState extends State<App> {
     // });
 
     fetchLinkData();
+
+
     super.initState();
     // fetchLinkData();
   }
@@ -147,6 +157,7 @@ class AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+
     return GetMaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,

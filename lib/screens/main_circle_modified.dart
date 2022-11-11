@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '../models/event_model.dart';
 import '../notification_service/local_notification_service.dart';
 import '../utils/db_operations.dart';
+import '../utils/new_user_config.dart';
 import 'calendar_list_events.dart';
 import 'chat_core/rooms.dart';
 import 'chat_core/view_requests_page.dart';
@@ -46,8 +47,31 @@ class MainCircleState extends State<MainCircle> {
     );
   }
 
+  checkUser()async{
+    try{
+      if (!((await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).get())).exists){
+        Get.offAll(()=>const PhoneLoginScreen());
+      }
+    }
+    catch(e){
+
+    }
+
+  }
+
   @override
   void initState() {
+
+    if(FirebaseAuth.instance.currentUser==null){
+      print("current user is null");
+      Get.offAll(()=>PhoneLoginScreen());
+
+    }
+    else{
+      checkUser();
+      print("current user is not null");
+    }
+
     super.initState();
 
     /// 1. This method call when app in terminated state and you get a notification
@@ -111,16 +135,29 @@ class MainCircleState extends State<MainCircle> {
         }
       },
     );
+
+    if(FirebaseAuth.instance.currentUser!=null){
+      if((FirebaseAuth.instance.currentUser!.metadata.creationTime!.difference(FirebaseAuth.instance.currentUser!.metadata.lastSignInTime!).inMinutes  < 1)){
+        NewUserConfigurations().setupUserScheduledInvites();
+      }
+    }
   }
 
   int _currentIndex = 0;
 
-  LogOutController logOutController = LogOutController();
+  final LogOutController logOutController = LogOutController();
 
   Map<String, dynamic>? userMap;
+  Map metadata = {};
+
 
   @override
   Widget build(BuildContext context) {
+
+    print(FirebaseAuth.instance.currentUser!.metadata.creationTime);
+    print(FirebaseAuth.instance.currentUser!.metadata.lastSignInTime);
+
+
     print(FirebaseAuth.instance.currentUser!.uid);
     // print(FirebaseChatCore.instance.firebaseUser);
 
@@ -138,8 +175,7 @@ class MainCircleState extends State<MainCircle> {
                   AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
                       snapshot) {
                 userMap = snapshot.data?.data();
-                Map metadata = userMap?['metadata'] ?? {};
-
+                 metadata = userMap?['metadata'] ?? {};
                 if (userMap != null) {
                   CurrentUserInfo.userMap = userMap;
                   metadata = userMap!['metadata'];
@@ -254,66 +290,6 @@ class MainCircleState extends State<MainCircle> {
                             Get.to(UsersPage());
                           },
                         ),
-                        // ListTile(
-                        //   leading: Icon(
-                        //     CupertinoIcons.checkmark_circle,
-                        //     color: Colors.white,
-                        //   ),
-                        //   title: Text(
-                        //     "Join A Circle",
-                        //     textScaleFactor: 1.2,
-                        //     style: TextStyle(
-                        //       color: Colors.white,
-                        //     ),
-                        //   ),
-                        //   onTap: () async {
-                        //     Get.back();
-                        //     await joinCircleById();
-                        //     // Get.off(MainCircle());
-                        //   },
-                        // ),
-                        // ListTile(
-                        //   leading: Icon(
-                        //     CupertinoIcons.arrow_up_down_circle_fill,
-                        //     color: Colors.white,
-                        //   ),
-                        //   title: Text(
-                        //     "View All Circles",
-                        //     textScaleFactor: 1.2,
-                        //     style: TextStyle(
-                        //       color: Colors.white,
-                        //     ),
-                        //   ),
-                        //   onTap: () async {
-                        //     Get.back();
-                        //     Get.to(AllCirclesScreen());
-                        //     // await joinCircleById();
-                        //     // Get.off(MainCircle());
-                        //   },
-                        // ),
-                        // ListTile(
-                        //   leading: Icon(
-                        //     CupertinoIcons.arrow_down_circle,
-                        //     color: Colors.white,
-                        //   ),
-                        //   title: Text(
-                        //     "Circle Invites",
-                        //     textScaleFactor: 1.2,
-                        //     style: TextStyle(
-                        //       color: Colors.white,
-                        //     ),
-                        //   ),
-                        //   onTap: () async {
-                        //     Get.back();
-                        //     Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //           builder: (context) =>
-                        //           const ViewRequestsPage()),
-                        //     );
-                        //
-                        //   },
-                        // ),
                         ListTile(
                           leading: Icon(
                             Icons.logout,
@@ -354,25 +330,6 @@ class MainCircleState extends State<MainCircle> {
             ),
             bottom: _bottom(),
             actions: [
-              // Padding(
-              //   padding: const EdgeInsets.only(right: 10.0),
-              //   child: Obx(() => (!logOutController.loading.value)
-              //       ? IconButton(
-              //           // tooltip: 'Refresh',
-              //           icon: const Icon(
-              //             Icons.logout_outlined,
-              //             size: 25.0,
-              //           ),
-              //           onPressed: () async {
-              //             // print('Hiragino Kaku Gothic ProN');
-              //             await logout();
-              //           })
-              //       : SizedBox(
-              //           height: 25,
-              //           width: 25,
-              //           child: CircularProgressIndicator(),
-              //         )),
-              // ),
               InkWell(
                 onTap: () {
                   // print("Hiragino Kaku Gothic ProN");
@@ -448,12 +405,6 @@ class MainCircleState extends State<MainCircle> {
                               child: const Text("        Profile      "),
                               onPressed: () {
                                 Get.to(ProfileScreen());
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) =>
-                                //       const ViewRequestsPage()),
-                                // );
                               }),
                           StreamBuilder(
                             stream: FirebaseFirestore.instance.collection("rooms").snapshots(),
@@ -500,7 +451,7 @@ class MainCircleState extends State<MainCircle> {
                                   child: Row(
                                     children: [
                                       const Text("Circle Invites  "),
-                                      count != 0 ?Text("($count)", style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
+                                      count != 0 ?Text("($count)", style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
                                     ],
                                   ),
                                   onPressed: () {
@@ -574,12 +525,6 @@ class MainCircleState extends State<MainCircle> {
                               child: const Text("          Text         "),
                               onPressed: () {
                                 Get.to(const UsersPage());
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) =>
-                                //       const ViewRequestsPage()),
-                                // );
                               }),
                           ElevatedButton(
 
@@ -613,102 +558,18 @@ class MainCircleState extends State<MainCircle> {
                               child: const Text("View Phone Contacts", style: TextStyle(fontSize: 15),),
                               onPressed: () {
                                 Get.to(ViewPhoneContactsScreen());
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) =>
-                                //       const ViewRequestsPage()),
-                                // );
                               }),
 
 
                         ],
                       ),
-                      // const NavigationBarItem(label: "messaging",icon: CupertinoIcons.bubble_left_bubble_right,),
-                      // const NavigationBarItem(label: "home",icon: Icons.home,),
-                      // const NavigationBarItem(label: "setting",icon: Icons.settings,)
                     ],
                   ),
                 ),
 
-          ///BOTTOM NAVIGATION BAR
-
-          // bottomNavigationBar: BottomNavigationBar(
-          //   backgroundColor: Colors.blue[600],
-          //   onTap: (index) {
-          //     print("hi");
-          //     // setState(() {
-          //     //   this.index = index;
-          //     // });
-          //
-          //     if (index == 1) {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(builder: (context) => RoomsPage()),
-          //       );
-          //       // _scaffoldKey1.currentState!.openDrawer();
-          //     }
-          //
-          //     // else if (index == 2) {
-          //     //   Navigator.push(
-          //     //     context,
-          //     //     MaterialPageRoute(builder: (context) => RoomsPage()),
-          //     //   );
-          //     // }
-          //   },
-          //   items: const [
-          //     BottomNavigationBarItem(
-          //       label: 'Home',
-          //       icon: Icon(CupertinoIcons.home),
-          //     ),
-          //     // BottomNavigationBarItem(
-          //     //   label: 'Profile',
-          //     //   icon: Icon(
-          //     //     Icons.group,
-          //     //   ),
-          //     // ),
-          //     BottomNavigationBarItem(
-          //       label: 'Chat',
-          //       icon: Icon(
-          //         CupertinoIcons.chat_bubble,
-          //       ),
-          //     ),
-          //   ],
-          // )),
     ));
   }
 
-  // _createDynamicLink() async {
-  //   print("staring  ..");
-  //   final dynamicLinkParams = DynamicLinkParameters(
-  //     link: Uri.parse("https://circledev.page.link/circle/007"),
-  //     uriPrefix: "https://circledev.page.link",
-  //     androidParameters: const AndroidParameters(
-  //         packageName: "com.example.circle", minimumVersion: 1),
-  //     iosParameters: const IOSParameters(bundleId: "com.example.circle"),
-  //     // longDynamicLink: Uri.parse("https://circledev.page.link/circle?id=120")
-  //   );
-  //
-  //   final Uri dynamicLink =
-  //       await FirebaseDynamicLinks.instance.buildLink(dynamicLinkParams);
-  //   print(dynamicLink);
-  //
-  //   // final ShortDynamicLink shortenedLink = await FirebaseDynamicLinks.instance.buildShortLink(dynamicLinkParams);
-  //
-  //   final PendingDynamicLinkData? x =
-  //       await FirebaseDynamicLinks.instance.getDynamicLink(dynamicLink);
-  //   final PendingDynamicLinkData? y = await FirebaseDynamicLinks.instance
-  //       .getDynamicLink(Uri.parse("https://circledev.page.link/circles"));
-  //   // final PendingDynamicLinkData? z = await FirebaseDynamicLinks.instance.getDynamicLink(shortenedLink.shortUrl);
-  //
-  //   // print(x);
-  //   print(y);
-  //   // print(z);
-  //
-  //   // print("short url : $z");
-  //
-  //   // return shortenedLink.shortUrl;
-  // }
 
   Future<void> logout() async {
     print('hi');
@@ -755,126 +616,6 @@ class MainCircleState extends State<MainCircle> {
       return PhoneLoginScreen();
     }));
   }
-
-  // Future<void> joinCircleById() async {
-  //   {
-  //     TextEditingController idController = TextEditingController();
-  //     // Map? circleMap;
-  //     types.Room? room;
-  //     bool tried = false;
-  //     await showDialog(
-  //         context: context,
-  //         builder: (_) => AlertDialog(
-  //               title: const Text('Enter Circle Id'),
-  //               content: TextFormField(
-  //                 controller: idController,
-  //                 decoration: const InputDecoration(
-  //                   border: OutlineInputBorder(),
-  //                   focusedBorder: OutlineInputBorder(),
-  //                   enabledBorder: OutlineInputBorder(),
-  //                   isDense: true,
-  //                 ),
-  //               ),
-  //               actions: [
-  //                 ElevatedButton(
-  //                     onPressed: () {
-  //                       Navigator.pop(context);
-  //                     },
-  //                     child: const Text("Cancel")),
-  //                 ElevatedButton(
-  //                     onPressed: () async {
-  //                       if (idController.text.isEmpty) {
-  //                         Get.snackbar("Error", "Id cant be null");
-  //                         return;
-  //                       }
-  //
-  //                       tried = true;
-  //                       try {
-  //                         room = await FirebaseChatCore.instance
-  //                             .room(idController.text)
-  //                             .first;
-  //                       } catch (e) {
-  //                         room = null;
-  //                       }
-  //
-  //                       Navigator.pop(context);
-  //                     },
-  //                     child: Text("Confirm"))
-  //               ],
-  //             ));
-  //
-  //     bool alreadyJoined = false;
-  //
-  //     if (room != null) {
-  //       for (var element in room!.users) {
-  //         if (element.id == FirebaseAuth.instance.currentUser!.uid) {
-  //           alreadyJoined = true;
-  //           break;
-  //         }
-  //       }
-  //
-  //       await showDialog(
-  //           context: context,
-  //           builder: (_) => AlertDialog(
-  //                 title: const Text('Join Circle'),
-  //                 content: Container(
-  //                   margin: const EdgeInsets.only(right: 16),
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: [
-  //                       CircleAvatar(
-  //                         // backgroundColor: hasImage ? Colors.transparent : color,
-  //                         backgroundImage: NetworkImage(room!.imageUrl ??
-  //                             'https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE='),
-  //                         radius: 40,
-  //                         child: null,
-  //                       ),
-  //                       const SizedBox(
-  //                         height: 15,
-  //                       ),
-  //                       Text(room?.name ?? "room")
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 actions: [
-  //                   ElevatedButton(
-  //                       onPressed: () {
-  //                         Navigator.pop(context);
-  //                       },
-  //                       child: Text("Cancel")),
-  //                   ElevatedButton(
-  //                       onPressed: alreadyJoined
-  //                           ? null
-  //                           : () async {
-  //                               try {
-  //                                 // await FirebaseFirestore.instance.collection("rooms")
-  //                                 //     .doc(widget.groupRoom.id)
-  //                                 //     .update({"users": userIds});
-  //                                 await FirebaseFirestore.instance
-  //                                     .collection("rooms")
-  //                                     .doc(idController.text)
-  //                                     .update({
-  //                                   "userIds": FieldValue.arrayUnion([
-  //                                     FirebaseAuth.instance.currentUser!.uid
-  //                                   ])
-  //                                 });
-  //                                 Navigator.pop(context);
-  //                                 Get.snackbar("Success",
-  //                                     "you are added to ${room?.name ?? 'circle'}",
-  //                                     backgroundColor: Colors.white);
-  //                               } catch (e) {
-  //                                 Get.snackbar("error", e.toString());
-  //                                 print(e);
-  //                               }
-  //                             },
-  //                       child: const Text("Join"))
-  //                 ],
-  //               ));
-  //     } else if (tried == true && room == null) {
-  //       Get.snackbar("Sorry", "No circle found", backgroundColor: Colors.white);
-  //     }
-  //   }
-  // }
 
   PreferredSizeWidget? _bottom() {
     return TabBar(
