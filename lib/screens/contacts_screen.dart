@@ -43,7 +43,7 @@ class ViewPhoneContactsScreen extends StatelessWidget {
           List<Contact> contacts = snapshot.data ?? [];
 
           return ListView.builder(
-              itemCount: contacts.length + phoneContactsController.savedUsers.length,
+              itemCount: contacts.length,
               itemBuilder: (context, index){
 
                 if(index < phoneContactsController.savedUsers.length){
