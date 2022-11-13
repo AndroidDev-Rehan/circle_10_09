@@ -52,7 +52,7 @@ class _ChatPageState extends State<ChatPage> {
     print(widget.room);
     print("last messages: ${widget.room.lastMessages}");
 
-    if (!widget.groupChat) {
+    if (!(widget.room.type==(types.RoomType.group))) {
       for (int i = 0; i < widget.room.users.length; i++) {
         if (widget.room.users[i].id != FirebaseAuth.instance.currentUser!.uid) {
           otherUser = widget.room.users[i];
@@ -68,10 +68,11 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle.light,
-        title: (!widget.groupChat)
+        title: (!(widget.room.type==(types.RoomType.group)))
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

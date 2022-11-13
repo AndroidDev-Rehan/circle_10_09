@@ -1,4 +1,5 @@
 import 'package:circle/phone_login/phone_login.dart';
+import 'package:circle/screens/chat_core/group_info.dart';
 import 'package:circle/screens/users_for_group.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,7 +21,8 @@ Map<String, String> globalRoomMap = {};
 
 class RoomsPage extends StatefulWidget {
   final bool secondVersion;
-  const RoomsPage({this.secondVersion = false});
+  final bool goToInfoPage;
+  const RoomsPage({this.secondVersion = false, this.goToInfoPage = false});
 
   @override
   State<RoomsPage> createState() => _RoomsPageState();
@@ -160,7 +162,12 @@ class _RoomsPageState extends State<RoomsPage> {
                     if((room.metadata == null) || (room.metadata!["isChildCircle"] == null) || (room.metadata!["isChildCircle"] == false) ){
                       return InkWell(
                         onTap: () {
-                          Navigator.of(context).push(
+
+                          if (widget.goToInfoPage){
+                            Get.to(()=>GroupInfoScreen(groupRoom: room));
+                          }
+                          else {
+                            Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => ChatPage(
                                 room: room,
@@ -168,6 +175,7 @@ class _RoomsPageState extends State<RoomsPage> {
                               ),
                             ),
                           );
+                          }
                         },
                         onLongPress: () async{
 

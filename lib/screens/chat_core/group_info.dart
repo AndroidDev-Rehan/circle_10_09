@@ -2,6 +2,7 @@ import 'package:circle/group_info_controller.dart';
 import 'package:circle/screens/add_event_screen.dart';
 import 'package:circle/screens/calendar_list_events.dart';
 import 'package:circle/screens/chat_core/add_group_members.dart';
+import 'package:circle/screens/chat_core/chat.dart';
 import 'package:circle/screens/chat_core/view_nested_rooms.dart';
 import 'package:circle/screens/chat_core/view_requests_page.dart';
 import 'package:circle/screens/view_user_requests.dart';
@@ -80,6 +81,16 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               appBar: AppBar(
                 title: const Text("Circle Info"),
                 centerTitle: true,
+                actions:  [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: InkWell(
+                        onTap: (){
+                          Get.to(()=>ChatPage(room: widget.groupRoom,groupChat: widget.groupRoom.type==types.RoomType.group,));
+                        },
+                        child: Icon(Icons.message, color: Colors.white,)),
+                  )
+                ],
               ),
               body: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),

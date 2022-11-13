@@ -29,11 +29,6 @@ class _PhoneContactTileState extends State<PhoneContactTile> {
 
   @override
   Widget build(BuildContext context) {
-    // print("contact");
-
-    if (widget.contact.name.first.startsWith('a')) {
-      print(widget.contact.phones.first);
-    }
 
     if (widget.contact.phones.isEmpty) {
       return const SizedBox();

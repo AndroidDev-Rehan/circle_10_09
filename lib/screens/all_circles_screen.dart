@@ -1,8 +1,10 @@
+import 'package:circle/screens/chat_core/group_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:get/get.dart';
 
 import 'chat_core/chat.dart';
 
@@ -85,7 +87,12 @@ class AllCirclesScreen extends StatelessWidget {
                                 if( ((room.metadata == null) || (room.metadata!["isChildCircle"] == null) || (room.metadata!["isChildCircle"] == false)) && (room.type == (types.RoomType.group)) ){
                                   return InkWell(
                                     onTap: () {
-                                      Navigator.of(context).push(
+
+                                      if(room.type==(types.RoomType.group)){
+                                        Get.to(()=>GroupInfoScreen(groupRoom: room));
+                                      }
+                                      else {
+                                        Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) => ChatPage(
                                             room: room,
@@ -93,6 +100,7 @@ class AllCirclesScreen extends StatelessWidget {
                                           ),
                                         ),
                                       );
+                                      }
                                     },
                                     child: Container(
                                       width: double.infinity,

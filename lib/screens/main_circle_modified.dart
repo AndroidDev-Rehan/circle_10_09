@@ -373,7 +373,7 @@ class MainCircleState extends State<MainCircle> {
                           ElevatedButton(
                               child: const Text("View My Circles"),
                               onPressed: () {
-                                Get.to(const RoomsPage());
+                                Get.to(const RoomsPage(goToInfoPage: true,));
                                 // viewMyCircles(context);
                               }),
                           ElevatedButton(
