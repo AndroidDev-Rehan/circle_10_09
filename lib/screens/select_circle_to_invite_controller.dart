@@ -1,5 +1,7 @@
+import 'package:circle/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/contact.dart';
 import 'package:get/get.dart';
@@ -22,9 +24,9 @@ class SelectCircleToInviteController extends GetxController{
 
     try{
 
-      ScheduledInvite scheduledInvite = ScheduledInvite(createdAt: DateTime.now(), invitedByUserId: FirebaseAuth.instance.currentUser!.uid, invitedToCircleIds: invitedCircles.map((element) => element.id).toList(), phoneNo: contact.phones.first.normalizedNumber, updatedAt: DateTime.now());
+      ScheduledInvite scheduledInvite = ScheduledInvite(createdAt: DateTime.now(), invitedByUserId: FirebaseAuth.instance.currentUser!.uid, invitedToCircleIds: invitedCircles.map((element) => element.id).toList(), phoneNo: getValidPhoneNumber(contact.phones.first.number), updatedAt: DateTime.now());
 
-      await FirebaseFirestore.instance.collection("scheduledInvites").doc(contact.phones.first.normalizedNumber).collection(contact.phones.first.normalizedNumber).doc("${contact.phones.first.normalizedNumber} ${FirebaseAuth.instance.currentUser!.uid}").set(
+      await FirebaseFirestore.instance.collection("scheduledInvites").doc(getValidPhoneNumber(contact.phones.first.number)).collection(getValidPhoneNumber(contact.phones.first.number)).doc("${getValidPhoneNumber(contact.phones.first.number)} ${FirebaseAuth.instance.currentUser!.uid}").set(
         scheduledInvite.toMap()
       );
 
@@ -32,8 +34,10 @@ class SelectCircleToInviteController extends GetxController{
 
     }
     catch(e){
-      Get.snackbar("error", e.toString());
-
+      // print(e);
+      // if(kDebugMode) {
+      //   Get.snackbar("error", e.toString());
+      // }
     }
 
     loading.value = false;
@@ -51,7 +55,7 @@ class SelectCircleToInviteController extends GetxController{
     if(contact.phones.isNotEmpty){
       _url = Uri(
         scheme: 'sms',
-        path: contact.phones.first.normalizedNumber,
+        path: contact.phones.first.number.trim(),
         queryParameters: <String, String>{
           'body': '$firstName has invited you to join circle app, Join Circle App now for fun and daily updates' ,
         },
@@ -64,7 +68,7 @@ class SelectCircleToInviteController extends GetxController{
     // String updUrl = _url.toString().replaceAll("+", "%20");
 
     if (!await launchUrl(_url,)) {
-      throw 'Could not launch $_url';
+      print("url launcher error, sms");
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
 
 import '../screens/select_circle_to_invite.dart';
+import '../utils/constants.dart';
 
 class PhoneContactTile extends StatefulWidget {
   const PhoneContactTile({Key? key, required this.contact, this.user})
@@ -33,6 +34,8 @@ class _PhoneContactTileState extends State<PhoneContactTile> {
     if (widget.contact.phones.isEmpty) {
       return const SizedBox();
     }
+
+    print(getValidPhoneNumber(widget.contact.phones.first.number));
 
     return _buildPhoneContact();
   }

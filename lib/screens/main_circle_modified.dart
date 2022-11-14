@@ -542,7 +542,7 @@ class MainCircleState extends State<MainCircle> {
                           ElevatedButton(
 
                             ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("View Circles Events", style: TextStyle(fontSize: 15),),
+                              child: const Text("Create Circle Event", style: TextStyle(fontSize: 15),),
                               onPressed: () {
                                 Get.to(CalendarListEventsScreen(circleId: 'global',));
                                 // Navigator.push(

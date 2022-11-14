@@ -1,3 +1,4 @@
+import 'package:circle/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_contacts/contact.dart';
@@ -65,19 +66,21 @@ class PhoneContactsController extends GetxController {
           return false;
         }
 
-        return contact.phones.any((phone) => phone.normalizedNumber == metadata['phone']);
+        return contact.phones.any((phone) => getValidPhoneNumber(phone.number) == metadata['phone']);
       });
 
       if (userSaved) {
         print("user saved found");
         savedUsers.add(user);
-        Contact contact = allContacts.firstWhere((element) => element.phones.any((phone) => phone.normalizedNumber == metadata['phone']));
+        Contact contact = allContacts.firstWhere((element) => element.phones.any((phone) => getValidPhoneNumber(phone.number) == metadata['phone']));
         savedContacts.add(contact);
-        allContacts.removeWhere((element) => element.phones.any((phone) => phone.normalizedNumber==metadata['phone']));
+        allContacts.removeWhere((element) => element.phones.any((phone) => getValidPhoneNumber(phone.number)==metadata['phone']));
       }
     }
 
     return savedUsers;
   }
 }
+
+
 
