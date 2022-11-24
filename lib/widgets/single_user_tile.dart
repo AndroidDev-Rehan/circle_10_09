@@ -1,7 +1,12 @@
 import 'package:circle/screens/chat_core/util.dart';
+import 'package:circle/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:get/get.dart';
+
+import '../screens/other_user_profile.dart';
 
 class SingleUserTile extends StatefulWidget {
   const SingleUserTile({Key? key, required this.user, required this.groupRoom, this.hideDelete = false, this.manager = false}) : super(key: key);
@@ -27,38 +32,50 @@ class _SingleUserTileState extends State<SingleUserTile> {
         horizontal: 16,
         vertical: 8,
       ),
-      child: Row(
-        children: [
-          _buildAvatar(widget.user),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(getUserName(widget.user), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-              SizedBox(height: widget.manager ? 2 : 0,),
-              widget.manager ? Text("manager") : SizedBox(height: 0,),
-            ],
-          ),
-          Spacer(),
-          !loading ?
-          Visibility(
-            visible: widget.hideDelete ? false : true,
-            maintainState: true,
-            maintainSize: true,
-            maintainAnimation: true,
-            child: InkWell(
-              onTap: () async{
-                await removeMember();
+      child: InkWell(
+        onTap: (){
+          if(widget.user.id == FirebaseAuth.instance.currentUser!.uid){
+            Get.to(ProfileScreen());
+          }
+          else {
+                  Get.to(() => OtherUserProfileScreen(
+                        otherUser: widget.user,
+                      ));
+                }
               },
-                child: Icon(Icons.delete_outline)
+        child: Row(
+          children: [
+            _buildAvatar(widget.user),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(getUserName(widget.user), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                SizedBox(height: widget.manager ? 2 : 0,),
+                widget.manager ? Text("manager") : SizedBox(height: 0,),
+              ],
             ),
-          ) : SizedBox(
-            height: 30,
-            width: 30,
-            child: Center(child: CircularProgressIndicator()),
-          )
+            Spacer(),
+            !loading ?
+            Visibility(
+              visible: widget.hideDelete ? false : true,
+              maintainState: true,
+              maintainSize: true,
+              maintainAnimation: true,
+              child: InkWell(
+                onTap: () async{
+                  await removeMember();
+                },
+                  child: Icon(Icons.delete_outline)
+              ),
+            ) : const SizedBox(
+              height: 30,
+              width: 30,
+              child: Center(child: CircularProgressIndicator()),
+            )
 
-        ],
+          ],
+        ),
       ),
     );
   }

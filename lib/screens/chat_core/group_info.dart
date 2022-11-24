@@ -1,21 +1,22 @@
 import 'package:circle/group_info_controller.dart';
-import 'package:circle/screens/add_event_screen.dart';
 import 'package:circle/screens/calendar_list_events.dart';
 import 'package:circle/screens/chat_core/add_group_members.dart';
 import 'package:circle/screens/chat_core/chat.dart';
 import 'package:circle/screens/chat_core/view_nested_rooms.dart';
-import 'package:circle/screens/chat_core/view_requests_page.dart';
 import 'package:circle/screens/view_user_requests.dart';
 import 'package:circle/utils/dynamiclink_helper.dart';
 import 'package:circle/widgets/single_user_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../main_circle_modified.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 
 class GroupInfoScreen extends StatefulWidget {
   final types.Room groupRoom;
@@ -56,6 +57,31 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     super.initState();
   }
 
+  uploadPhotoId() async {
+    groupInfoController.pickedFile = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, imageQuality: 50);
+    if(groupInfoController.pickedFile!=null){
+      setState(() {});
+    }
+
+    print("upload photo id completed");
+
+
+
+  }
+
+  Future<String> uploadImageAndGetUrl() async {
+    String downloadUrl = '';
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference ref = storage.ref().child("file ${DateTime.now()}");
+    UploadTask uploadTask =
+        ref.putFile(File(groupInfoController.pickedFile!.path));
+    await uploadTask.then((res) async {
+      downloadUrl = await res.ref.getDownloadURL();
+    });
+    return downloadUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool tried = false;
@@ -81,14 +107,21 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               appBar: AppBar(
                 title: const Text("Circle Info"),
                 centerTitle: true,
-                actions:  [
+                actions: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: InkWell(
-                        onTap: (){
-                          Get.to(()=>ChatPage(room: widget.groupRoom,groupChat: widget.groupRoom.type==types.RoomType.group,));
+                        onTap: () {
+                          Get.to(() => ChatPage(
+                                room: widget.groupRoom,
+                                groupChat: widget.groupRoom.type ==
+                                    types.RoomType.group,
+                              ));
                         },
-                        child: Icon(Icons.message, color: Colors.white,)),
+                        child: Icon(
+                          Icons.message,
+                          color: Colors.white,
+                        )),
                   )
                 ],
               ),
@@ -96,14 +129,55 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: ListView(
                   children: [
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          widget.groupRoom.imageUrl ??
-                              "https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE=",
-                          width: 100,
-                          height: 100,
-                        )),
+                    InkWell(
+                      onTap: () async {
+                        await uploadPhotoId();
+                      },
+                      child: SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: groupInfoController.pickedFile !=
+                                  null
+                                  ? Image.file(
+                                  File(
+                                    groupInfoController
+                                        .pickedFile!.path,
+                                  ),
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover)
+                                  : Image.network(widget.groupRoom.imageUrl!,
+                                  height: 100,
+                                  // width: 100,
+                                  fit: BoxFit.cover),
+                            ),
+                            Positioned(
+                                bottom: 5,
+                                right: 20,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20)),
+                                    padding: const EdgeInsets.all(5),
+                                    child: const Icon(Icons.photo_camera)))
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // ClipRRect(
+                    //     borderRadius: BorderRadius.circular(50),
+                    //     child: Image.network(
+                    //       widget.groupRoom.imageUrl ??
+                    //           "https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE=",
+                    //       width: 100,
+                    //       height: 100,
+                    //     )),
                     const SizedBox(
                       height: 10,
                     ),
@@ -123,7 +197,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                               decoration: const InputDecoration(
                                 label: Text(
                                   "Circle Name",
-                                  style: TextStyle(fontWeight: FontWeight.normal),
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.normal),
                                 ),
                                 isDense: true,
                                 enabledBorder: OutlineInputBorder(),
@@ -136,31 +211,29 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                             height: 100,
                             child: TextFormField(
                               // initialValue: "",
-                                controller: groupDesController,
-                                validator: (String? value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return "Circle name can't be empty";
-                                  }
-                                  return null;
-                                },
-                                decoration: const InputDecoration(
+                              controller: groupDesController,
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Circle name can't be empty";
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
                                   label: Text(
                                     "Circle Description",
-                                    style: TextStyle(fontWeight: FontWeight.normal),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal),
                                   ),
                                   isDense: true,
                                   enabledBorder: OutlineInputBorder(),
                                   focusedBorder: OutlineInputBorder(),
-                                  hintText: "Enter Circle Description here"
-                                ),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.normal, fontSize: 20),
+                                  hintText: "Enter Circle Description here"),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal, fontSize: 20),
                               maxLines: null,
                               minLines: null,
                               readOnly: false,
                               expands: true,
-
-
                             ),
                           ),
                         ],
@@ -216,9 +289,14 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                 child: ElevatedButton(
                                     onPressed: () {
                                       Get.off(AddMembersScreen(
-                                          groupRoom: widget.groupRoom, invite : true));
+                                          groupRoom: widget.groupRoom,
+                                          invite: true));
                                     },
-                                    child:  Text((widget.groupRoom.metadata!["isChildCircle"] ?? false) ? "Add Users" : "Invite Users")),
+                                    child: Text((widget.groupRoom
+                                                .metadata!["isChildCircle"] ??
+                                            false)
+                                        ? "Add Users"
+                                        : "Invite Users")),
                               ),
                         SizedBox(
                           width: (widget.groupRoom.metadata != null) &&
@@ -282,12 +360,21 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                             ElevatedButton(
                                                 onPressed: () async {
                                                   tried = true;
-                                                  QuerySnapshot<Map<String,dynamic>> collection = await FirebaseFirestore.instance.collection("users").get();
-                                                  for (var document in collection.docs) {
+                                                  QuerySnapshot<
+                                                          Map<String, dynamic>>
+                                                      collection =
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection("users")
+                                                          .get();
+                                                  for (var document
+                                                      in collection.docs) {
                                                     // QueryDocumentSnapshot<Map<String,dynamic>> doc = document;
                                                     Map map = document.data();
-                                                    Map metadata = map['metadata'];
-                                                    if(metadata['user_id'] == idController.text ){
+                                                    Map metadata =
+                                                        map['metadata'];
+                                                    if (metadata['user_id'] ==
+                                                        idController.text) {
                                                       userMap = map;
                                                       documentId = document.id;
                                                       break;
@@ -356,9 +443,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                                               .groupRoom.id)
                                                           .update({
                                                         "userIds": FieldValue
-                                                            .arrayUnion([
-                                                          documentId!
-                                                        ])
+                                                            .arrayUnion(
+                                                                [documentId!])
                                                       });
                                                       Navigator.pop(context);
                                                       Get.snackbar("Success",
@@ -404,30 +490,42 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               StreamBuilder(
-                                stream: FirebaseChatCore.instance.room(widget.groupRoom.id),
-                                builder: (BuildContext context,AsyncSnapshot<types.Room> snapshot) {
-                                  if(!(snapshot.connectionState==ConnectionState.waiting || (!(snapshot.hasData)))) {
-                                    types.Room newRoom = snapshot.data!;
-                                    Map metadata = newRoom.metadata ?? {};
-                                    List req = metadata['userRequests'] ?? [];
-                                    reqCount = req.length;
-                                  }
+                                  stream: FirebaseChatCore.instance
+                                      .room(widget.groupRoom.id),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<types.Room> snapshot) {
+                                    if (!(snapshot.connectionState ==
+                                            ConnectionState.waiting ||
+                                        (!(snapshot.hasData)))) {
+                                      types.Room newRoom = snapshot.data!;
+                                      Map metadata = newRoom.metadata ?? {};
+                                      List req = metadata['userRequests'] ?? [];
+                                      reqCount = req.length;
+                                    }
 
-                                  return ElevatedButton(
-                                      onPressed: () {
-                                        Get.to(ViewUserRequestsPage(
-                                            groupRoom: widget.groupRoom));
-                                      },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Text("View Circle Requests  "),
-                                          reqCount != 0 ?Text("($reqCount)", style: TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
-
-                                        ],
-                                      ));
-                                }
-                              ),
+                                    return ElevatedButton(
+                                        onPressed: () {
+                                          Get.to(ViewUserRequestsPage(
+                                              groupRoom: widget.groupRoom));
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text(
+                                                "View Circle Requests  "),
+                                            reqCount != 0
+                                                ? Text(
+                                                    "($reqCount)",
+                                                    style: TextStyle(
+                                                        color: Colors.yellow,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                : SizedBox()
+                                          ],
+                                        ));
+                                  }),
                               const SizedBox(
                                 height: 10,
                               ),
@@ -594,7 +692,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             // print("hello");
-                            await _updateGroupNameAndDesc();
+                            await _updateGroupData();
                             Get.offAll(
                               const MainCircle(),
                             );
@@ -644,12 +742,18 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         .update({'metadata': metadata});
   }
 
-  Future<void> _updateGroupNameAndDesc() async {
+  Future<void> _updateGroupData() async {
     // setState(() {
     //   loading = true;
     // });
 
     groupInfoController.loading.value = true;
+
+    String? imageUrl = widget.groupRoom.imageUrl;
+
+    if (groupInfoController.pickedFile != null) {
+      imageUrl = await uploadImageAndGetUrl();
+    }
 
     Map metadata = widget.groupRoom.metadata ?? {};
     metadata['description'] = groupDesController.text;
@@ -657,7 +761,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     await FirebaseFirestore.instance
         .collection("rooms")
         .doc(widget.groupRoom.id)
-        .update({"name": groupNameController.text, 'metadata' : metadata});
+        .update({
+      "name": groupNameController.text,
+      'metadata': metadata,
+      'imageUrl': imageUrl
+    });
 
     groupInfoController.loading.value = false;
   }
@@ -728,17 +836,13 @@ class _MuteButtonState extends State<MuteButton> {
                 loading = false;
               });
 
-              if(muted){
+              if (muted) {
                 Get.snackbar("Success", "Circle Muted",
                     backgroundColor: Colors.white);
-
-              }
-              else{
+              } else {
                 Get.snackbar("Success", "Circle Unmuted",
                     backgroundColor: Colors.white);
-
               }
-
             },
             child: Text(muted ? "Unmute" : "Mute"),
             style: ElevatedButton.styleFrom(

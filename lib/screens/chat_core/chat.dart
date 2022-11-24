@@ -19,6 +19,8 @@ import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../circle_members.dart';
+
 class ChatPage extends StatefulWidget {
   const ChatPage({
     required this.room,
@@ -95,11 +97,37 @@ class _ChatPageState extends State<ChatPage> {
 
             ///GROUP APP BAR
             InkWell(
-                onTap: () {
-                  print("group name pressed");
-                  // Get.to(GroupInfoScreen(groupRoom: widget.room));
+                onTap: (){
+                  if(widget.room.type == (types.RoomType.group)) {
+                    Get.to(CircleMembersScreen(
+                      groupRoom: widget.room,
+                    ));
+                  }
                 },
-                child: Row(
+                child:
+                true ?
+                    ///new group app bar for showing members
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 30,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.room.users.length > 2 ? 3 : widget.room.users.length ,
+                          itemBuilder: (context,index){
+                          return userImageAvatar(widget.room.users[index].imageUrl!);
+                          }),
+                    ),
+                    SizedBox(height: 3,),
+                    Text("View all members ->", style: TextStyle(fontSize: 12),)
+                  ],
+                )
+                    :
+
+                Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ClipRRect(
@@ -547,3 +575,14 @@ class _MuteTextButtonState extends State<MuteTextButton> {
           );
   }
 }
+
+Widget userImageAvatar(String url){
+  return ClipRRect(
+      borderRadius: BorderRadius.circular(50),
+      child: Image.network(
+        url,
+        width: 30,
+        height: 30,
+      ));
+}
+

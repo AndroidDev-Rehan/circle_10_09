@@ -163,7 +163,7 @@ class _RoomsPageState extends State<RoomsPage> {
                       return InkWell(
                         onTap: () {
 
-                          if (widget.goToInfoPage){
+                          if (widget.goToInfoPage && room.type == types.RoomType.group ){
                             Get.to(()=>GroupInfoScreen(groupRoom: room));
                           }
                           else {

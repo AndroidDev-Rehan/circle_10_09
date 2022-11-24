@@ -1,6 +1,9 @@
 import 'package:circle/logoutController.dart';
 import 'package:circle/phone_login/phone_login.dart';
 import 'package:circle/screens/all_circles_screen.dart';
+import 'package:circle/screens/buttons_screens/circle_buttons_screens.dart';
+import 'package:circle/screens/buttons_screens/event_buttons_screens.dart';
+import 'package:circle/screens/buttons_screens/text_buttons_screens.dart';
 import 'package:circle/screens/chat_core/search_chat_screen.dart';
 import 'package:circle/screens/chat_core/search_users.dart';
 import 'package:circle/screens/chat_core/users.dart';
@@ -22,6 +25,7 @@ import '../models/event_model.dart';
 import '../notification_service/local_notification_service.dart';
 import '../utils/db_operations.dart';
 import '../utils/new_user_config.dart';
+import 'buttons_screens/profile_buttons_screen.dart';
 import 'calendar_list_events.dart';
 import 'chat_core/rooms.dart';
 import 'chat_core/view_requests_page.dart';
@@ -362,210 +366,73 @@ class MainCircleState extends State<MainCircle> {
               ? const RoomsPage(
                   secondVersion: true,
                 )
-              : SafeArea(
-                  top: false,
-                  bottom: true,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: <Widget>[
-                          ElevatedButton(
-                              child: const Text("View My Circles"),
-                              onPressed: () {
-                                Get.to(const RoomsPage(goToInfoPage: true,));
-                                // viewMyCircles(context);
-                              }),
-                          ElevatedButton(
-                              child: const Text("View All Circles"),
-                              onPressed: () {
-                                Get.to(const AllCirclesScreen());
-                                // viewMyCircles(context);
-                              }),
-                          ElevatedButton(
-                              child: const Text("  Join a Circle  "),
-                              onPressed: () async{
-                                Get.to(const SelectCircleToJoinScreen());
-                                // Get.to(AllCirclesScreen());
-                                // viewMyCircles(context);
-                              }),
-                          ElevatedButton(
-                              child: const Text("Create A Circle"),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CreateCirclePage()),
-                                );
-                              }),
-                          ElevatedButton(
-
-                              ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("        Profile      "),
-                              onPressed: () {
-                                Get.to(ProfileScreen());
-                              }),
-                          StreamBuilder(
-                            stream: FirebaseFirestore.instance.collection("rooms").snapshots(),
-                            builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot) {
-
-                              if(snapshot.connectionState == ConnectionState.waiting || (!(snapshot.hasData))){
-                                return ElevatedButton(
-                                    child: const Text(" Circle Invites "),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const ViewRequestsPage()),
-                                      );
-                                    });
-                              }
-
-                              int count = 0;
-
-                              QuerySnapshot<Map<String,dynamic>> allRoomsCollection = snapshot.data!;
-
-                              for (int i=0; i<allRoomsCollection.docs.length; i++){
-
-
-                                final Map<String,dynamic> map  = allRoomsCollection.docs[i].data();
-
-                                if(map["requests"] == null){
-                                  continue;
-                                }
-
-                                final List requests = map["requests"] ?? [];
-
-
-                                if(requests.contains(FirebaseAuth.instance.currentUser!.uid)){
-                                  // print("trying");
-                                  // print(map);
-                                  count = count +1;
-                              }
-                              }
-
-
-                              return ElevatedButton(
-                                  child: Row(
-                                    children: [
-                                      const Text("Circle Invites  "),
-                                      count != 0 ?Text("($count)", style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
-                                    ],
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                          const ViewRequestsPage()),
-                                    );
-                                  });
-                            }
-                          ),
-
-                          StreamBuilder(
-                              stream: FirebaseFirestore.instance.collection("events").snapshots(),
-                              builder: (context,AsyncSnapshot<QuerySnapshot<Map<String,dynamic>>> snapshot) {
-
-                                if(snapshot.connectionState == ConnectionState.waiting || (!(snapshot.hasData))){
-                                  return ElevatedButton(
-                                      child: const Text(" Event Invites "),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                              const ViewEventInvites()),
-                                        );
-                                      });
-                                }
-
-                                int count = 0;
-
-                                QuerySnapshot<Map<String,dynamic>> allEventsCollection = snapshot.data!;
-
-                                for (int i=0; i<allEventsCollection.docs.length; i++){
-
-
-                                  final EventModel event  = EventModel.fromMap(allEventsCollection.docs[i].data());
-
-
-                                  if(event.invitedUsers.contains(FirebaseAuth.instance.currentUser!.uid)){
-                                    // print("trying");
-                                    // print(map);
-                                    count = count +1;
-                                  }
-                                }
-
-
-                                return ElevatedButton(
-                                    child: Row(
-                                      children: [
-                                        const Text("Event Invites  "),
-                                        count != 0 ?Text("($count)", style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),) : SizedBox()
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                            const ViewEventInvites()),
-                                      );
-
-                                    });
-                              }
-                          ),
-
-                          ElevatedButton(
-
-                            ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("          Text         "),
-                              onPressed: () {
-                                Get.to(const UsersPage());
-                              }),
-                          ElevatedButton(
-
-                            ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("   Circle Users   "),
-                              onPressed: () {
-                                Get.to(const UsersPage(onlyUsers: true,));
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) =>
-                                //       const ViewRequestsPage()),
-                                // );
-                              }),
-                          ElevatedButton(
-
-                            ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("Create Circle Event", style: TextStyle(fontSize: 15),),
-                              onPressed: () {
-                                Get.to(CalendarListEventsScreen(circleId: 'global',));
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //       builder: (context) =>
-                                //       const ViewRequestsPage()),
-                                // );
-                              }),
-                          ElevatedButton(
-
-                            ///VIEW CIRCLE INVITES REPLACEMENT
-                              child: const Text("View Phone Contacts", style: TextStyle(fontSize: 15),),
-                              onPressed: () {
-                                Get.to(ViewPhoneContactsScreen());
-                              }),
-
-
-                        ],
+              : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 100,),
+                    ElevatedButton(
+                        child: const Text("TEXT"),
+                        onPressed: () {
+                          Get.to(TextButtonsScreen());
+                          // viewMyCircles(context);
+                        },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(80, 80),
+                        shape: CircleBorder(),
                       ),
-                    ],
-                  ),
+
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          ///VIEW CIRCLE INVITES REPLACEMENT
+                            child: const Text("PROFILE"),
+                            onPressed: () {
+                              Get.to(const ProfileButtonsScreen());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: Size(100, 80),
+                              shape: CircleBorder(),
+                            )
+
+
+                        ),
+                        ElevatedButton(
+                          ///VIEW CIRCLE INVITES REPLACEMENT
+                            child: const Text("CIRCLES"),
+                            onPressed: () {
+                              Get.to(const CircleButtonScreens());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: Size(100, 80),
+                              shape: CircleBorder(),
+                            )
+
+                        ),
+
+                      ],
+                    ),
+
+                    ElevatedButton(
+
+                      ///VIEW CIRCLE INVITES REPLACEMENT
+                        child: const Text("EVENTS"),
+                        onPressed: () {
+                          Get.to(EventButtonsScreen());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(100, 80),
+                          shape: CircleBorder(),
+                        )
+                        ),
+
+
+                  ],
                 ),
+              ),
 
     ));
   }

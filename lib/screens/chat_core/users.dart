@@ -1,9 +1,12 @@
 import 'package:circle/screens/Create_Circle_screen.dart';
 import 'package:circle/screens/chat_core/search_users.dart';
+import 'package:circle/screens/other_user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 // import '../users_for_group.dart';
 import 'chat.dart';
@@ -92,8 +95,13 @@ class _UsersPageState extends State<UsersPage> {
 
                       return InkWell(
                         onTap: () {
-                          _handlePressed(user, context);
-                        },
+                          if(widget.onlyUsers){
+                            Get.to(OtherUserProfileScreen(otherUser: user));
+                          }
+                          else {
+                                  _handlePressed(user, context);
+                                }
+                              },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 0,

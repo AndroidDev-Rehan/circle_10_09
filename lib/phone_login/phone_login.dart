@@ -1,6 +1,7 @@
 import 'package:circle/phone_login/otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../screens/main_circle_modified.dart';
 
@@ -13,35 +14,9 @@ class PhoneLoginScreen extends StatefulWidget {
 
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
-  final TextEditingController _texFieldController = TextEditingController();
-  // final TextEditingController _texFieldController2 = TextEditingController();
+  // final TextEditingController _texFieldController = TextEditingController();
 
-
-  // void showAlert(BuildContext context, String content) {
-  //   Widget okButton = TextButton(
-  //     child: const Text("OK"),
-  //     onPressed: () {
-  //       Navigator.of(context, rootNavigator: true).pop('dialog');
-  //     },
-  //   );
-  //   AlertDialog dialog = AlertDialog(
-  //       title: const Text('Alert Dialog'),
-  //       actions: [ okButton,],
-  //       content: SingleChildScrollView(
-  //         child: ListBody(
-  //           children: <Widget>[
-  //             Text('Error: $content'),
-  //           ],
-  //         ),
-  //       )
-  //   );
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return dialog;
-  //     },
-  //   );
-  // }
+  String phoneNo = "";
 
   @override
   Widget build(BuildContext context) {
@@ -49,22 +24,46 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       child: Scaffold(
         body: Column(
           children: <Widget>[
-            SizedBox(height: 20,),
-            Text("Login"),
-            SizedBox(height: 10,),
+            const SizedBox(height: 20,),
+            const Text("Login"),
+            const SizedBox(height: 10,),
             Image.asset("assets/images/Circle.jpg", width: 400, height: 80),
+
+            SizedBox(height: 30,),
+
             Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 9, vertical: 16),
-              child: TextFormField(
-                controller: _texFieldController,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: IntlPhoneField(
                 decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  labelText: 'Enter your phoneNo',
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
                 ),
-                keyboardType: TextInputType.number,
+                initialCountryCode: 'US',
+                onChanged: (phone) {
+                  phoneNo = phone.completeNumber;
+                  print(phoneNo);
+                },
               ),
             ),
+
+            // Row(
+            //   children: [
+            //     Padding(
+            //       padding:
+            //       const EdgeInsets.symmetric(horizontal: 9, vertical: 16),
+            //       child: TextFormField(
+            //         controller: _texFieldController,
+            //         decoration: const InputDecoration(
+            //           border: UnderlineInputBorder(),
+            //           labelText: 'Enter your phoneNo',
+            //         ),
+            //         keyboardType: TextInputType.number,
+            //       ),
+            //     ),
+            //   ],
+            // ),
             const SizedBox(
               width: 300,
               height: 10,
@@ -77,7 +76,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 ElevatedButton(
                   onPressed: () async{
 
-                    Get.off(OtpScreen(phoneno: _texFieldController.text.contains("+") ? _texFieldController.text : "+${_texFieldController.text}"));
+                    Get.off(OtpScreen(phoneno: phoneNo.contains("+") ? phoneNo : "+${phoneNo}"));
 
                     // Future<String?> user  = FireAuth.signInUsingEmailPassword(email: _texFieldController.text, password: _texFieldController2.text, context:context);
 

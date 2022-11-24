@@ -60,6 +60,8 @@ dependencies:
   http: ^0.13.5
   permission_handler: ^10.0.0
   flutter_contacts: ^1.1.5
+  country_picker: ^2.0.17
+  intl_phone_field: ^3.1.0
 
 
 dependency_overrides:
