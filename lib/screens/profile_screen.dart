@@ -44,10 +44,13 @@ class ProfileScreen extends StatelessWidget {
                 }
 
                 Map<String, dynamic> userMap = snapshot.data!.data()!;
-                hobbyController.text = userMap['fvrtHobby'] ?? "";
-                musicController.text = userMap['fvrtMusic'] ?? "";
-                bandController.text = userMap['fvrtBand'] ?? "";
-                bookController.text = userMap['fvrtBook'] ?? "";
+
+                Map metadata = userMap['metadata'] ?? {};
+
+                hobbyController.text = metadata['fvrtHobby'] ?? "";
+                musicController.text = metadata['fvrtMusic'] ?? "";
+                bandController.text = metadata['fvrtBand'] ?? "";
+                bookController.text = metadata['fvrtBook'] ?? "";
                 // passwordController.text = userMap['firstName'];
                 // emailController.text = FirebaseAuth.instance.currentUser!.email;
 
@@ -56,8 +59,6 @@ class ProfileScreen extends StatelessWidget {
                   Get.offAll(CollectUserInfo(phoneNo: FirebaseAuth.instance.currentUser!.phoneNumber!));
                   return SizedBox();
                 }
-
-                Map metadata = userMap['metadata'] ?? {};
 
                 return SingleChildScrollView(
                   child: Column(
@@ -178,7 +179,7 @@ class ProfileScreen extends StatelessWidget {
                                 profileController.saveInfo(
                                     hobby: hobbyController.text,
                                     music: musicController.text,
-                                    imageUrl: userMap['imageUrl'], book: bookController.text, band: bandController.text);
+                                    imageUrl: userMap['imageUrl'], book: bookController.text, band: bandController.text,metadata: metadata);
                               },
                               child: const Text('Save'))),
                       const SizedBox(

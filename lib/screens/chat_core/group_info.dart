@@ -153,8 +153,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                                   fit: BoxFit.cover)
                                   : Image.network(widget.groupRoom.imageUrl!,
                                   height: 100,
-                                  // width: 100,
-                                  fit: BoxFit.cover),
+                                  width: 100,
+                                  fit: BoxFit.cover
+                              ),
                             ),
                             Positioned(
                                 bottom: 5,

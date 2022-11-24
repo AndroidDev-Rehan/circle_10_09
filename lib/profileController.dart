@@ -32,7 +32,7 @@ class ProfileController extends GetxController{
   }
 
 
-  Future<void> saveInfo({required String hobby, required String music, required String band, required String book, required String imageUrl , bool createIt = false }) async{
+  Future<void> saveInfo({required String hobby, required String music, required String band, required String book, required String imageUrl , bool createIt = false, required Map metadata }) async{
     loading.value = true;
     try{
       print("picked file is ${pickedFile?.path}");
@@ -56,16 +56,17 @@ class ProfileController extends GetxController{
       }
 
       else{
-        await FirebaseFirestore.instance
+        metadata['fvrtHobby'] = hobby;
+        metadata['fvrtMusic'] = music;
+        metadata['fvrtBook'] = book;
+        metadata['fvrtBand'] = band;
+
+    await FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .update({
-          'fvrtHobby': hobby,
-          'fvrtMusic': music,
-          'fvrtBook' : book,
-          'fvrtBand' : band,
-          'imageUrl':
-          (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl
+          'imageUrl': (pickedFile != null) ? (await uploadImageAndGetUrl()) : imageUrl,
+          'metadata': metadata
         });
         Get.back();
       }

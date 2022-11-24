@@ -19,11 +19,23 @@ class OtherUserProfileScreen extends StatefulWidget {
 class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
   bool chatLoading = false;
 
+  TextEditingController hobbyController = TextEditingController();
+  TextEditingController musicController = TextEditingController();
+  TextEditingController bookController = TextEditingController();
+  TextEditingController bandController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     print(Get.width);
     double paddingRes30 = Get.width * 0.070093;
     Map metadata = widget.otherUser.metadata!;
+
+    hobbyController.text = metadata['fvrtHobby'] ?? "";
+    musicController.text = metadata['fvrtMusic'] ?? "";
+    bandController.text = metadata['fvrtBand'] ?? "";
+    bookController.text = metadata['fvrtBook'] ?? "";
+
 
     return Scaffold(
       appBar: AppBar(title: const Text('User Profile')),
@@ -134,13 +146,17 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
               padding: EdgeInsets.symmetric(
                   horizontal: paddingRes30, vertical: 8),
               child: _buildCustomTextField("Favourite Hobby",
+                hobbyController,
                 readOnly: true,
+
+
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: paddingRes30, vertical: 8),
               child: _buildCustomTextField("Favourite Music",
+                musicController,
                 readOnly: false,
               ),
             ),
@@ -149,6 +165,7 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
               padding: EdgeInsets.symmetric(
                   horizontal: paddingRes30, vertical: 8),
               child: _buildCustomTextField("Favourite Band",
+                bandController,
                 readOnly: false,
               ),
             ),
@@ -156,6 +173,7 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
               padding: EdgeInsets.symmetric(
                   horizontal: paddingRes30, vertical: 8),
               child: _buildCustomTextField("Favourite Book",
+                bookController,
                 readOnly: false,
               ),
             ),
@@ -181,8 +199,10 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
   }
 
   Widget _buildCustomTextField(String hintText,
+      TextEditingController textEditingController,
       {bool readOnly = true,}) {
     return TextFormField(
+      controller: textEditingController,
       readOnly: true,
       decoration: InputDecoration(
         hintText: hintText,
